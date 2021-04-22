@@ -1,4 +1,6 @@
 const core = require('./lib-core')
 const dialect = require('./dialect-postgres')
 
-module.exports = core({ dialect });
+const a = core({ dialect });
+a.from = undefined;
+module.exports = a;

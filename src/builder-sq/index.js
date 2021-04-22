@@ -28,9 +28,13 @@ const createQueryBuilder = ({ defaultContext, query, e, config }) => {
         }
     }
 
+    // EasyQB no access to from
+    const _methodProperties = methodProperties({ methods, chain });
+    delete _methodProperties.from;
+    
     Object.defineProperties(builder, {
         ...builderProperties({ chain, newContext, updateContext, queries }),
-        ...methodProperties({ methods, chain }),
+        ..._methodProperties,
         ...executeProperties,
         ...properties,
         e: {

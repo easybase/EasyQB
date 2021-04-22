@@ -1,8 +1,7 @@
 var sq = require('../');
 
 const easyqb = (tableName) => {
-  const n = sq({ oneCallback: async () => { }, allCallback: async () => { } })(tableName);
-  sq.from = undefined;
+  const n = sq({ oneCallback: console.log, allCallback: async () => { } })(tableName);
   return n;
 }
 

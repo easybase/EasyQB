@@ -1,3 +1,5 @@
+<br />
+
 <p align="center">
   <a href="https://easybase.io">
     <img src="https://easybase.io/assets/images/logo_black.png" alt="easybase logo black" width="80" height="80">
@@ -7,12 +9,12 @@
 <br />
 
 # Easybase Query Builder
-This project is based on [sqorn](https://github.com/sqorn/sqorn) using functional expressions and conditionals. There's no execution workflow or [manual query builder](https://sqorn.org/docs/about#manual-query-builder). Typings are also included.
+This project is based on [sqorn](https://github.com/sqorn/sqorn) using functional expressions and conditionals. There's no execution workflow or [manual query builder](https://sqorn.org/docs/about#manual-query-builder).
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-Database CRUD operations can be built intuitively and safely. To be used in the [_easybasejs_](https://github.com/easybase/easybasejs) and [_easybase-react_](https://github.com/easybase/easybase-react) packages.
+Database CRUD operations, created intuitively and safely, for use in compliance with [Easybase](https://easybase.io/). This will be statefully built-in the [_easybasejs_](https://github.com/easybase/easybasejs) and [_easybase-react_](https://github.com/easybase/easybase-react) packages.
 
 **From Sqorn**:
 > Composable: Build complex queries from simple parts. Chain, extend, and embed queries.
@@ -39,7 +41,6 @@ var sq = require('./src');
 
 const easyqb = (tableName) => {
   const n = sq({ oneCallback: async () => { }, allCallback: async () => { } })(tableName);
-  sq.from = undefined;
   return n;
 }
 
