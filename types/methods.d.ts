@@ -400,30 +400,6 @@ export interface Where {
  ```
     */
    where(...conditions: Conditions): this
-
-   /**
-    * **WHERE clause** - template string
-    *
-    * Filters result set.
-    * 
-    * Multiple calls to `.where` are joined with _" and "_.
-    *
-    * @example
- ```js
-  sq.from`person`.where`age < ${18}`
-  // select * from person where (age < $1)
-  
-  sq.from`person`.where`age < ${7}`.set`group = ${'infant'}`
-  // update person set group = $1 where (age < $2)
-  
-  sq.delete.from`person`.where`age < ${7}`
-  // delete from person where (age < $1)
-  
-  sq.from`person`.where`age > ${3}`.where`age < ${7}`
-  // select * from person where (age > $1) and (age < $2)
-  ```
-    */
-   where(strings: TemplateStringsArray, ...args: any[]): this
 }
 
 export interface ExpressWhere {
