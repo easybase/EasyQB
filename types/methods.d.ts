@@ -6,6 +6,11 @@ type Row = { [column: string]: any }
 type Conditions = (SQ | { [field: string]: SQ | any })[]
 type Simplify<T> = { [key in keyof T]: T[key] };
 
+interface StatusResponse {
+   success: boolean;
+   body?: any;
+}
+
 export interface With {
    /**
     * **WITH clause** - table arguments
@@ -110,7 +115,7 @@ interface Execute extends Promise<Row[]> {
  await sq`person`.insert({ name: 'Jo' }).all(trx)
  ```
     */
-   all(trx?: Transaction): Promise<Row[]>
+   all(trx?: Transaction): Promise<Record<string, any>[] | StatusResponse>
 
    /**
     * Executes the query and returns a Promise for the first row
@@ -126,7 +131,7 @@ interface Execute extends Promise<Row[]> {
     * const trx = await sq.transaction()
     * await sq`person`.insert({ name: 'Jo' }).one(trx)
     */
-   one(trx?: Transaction): Promise<Row | void>
+   one(trx?: Transaction): Promise<Record<string, any> | StatusResponse>
 }
 
 

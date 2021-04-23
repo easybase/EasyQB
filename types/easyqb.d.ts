@@ -1,8 +1,13 @@
 import { SQF } from './sq'
 
+interface StatusResponse {
+    success: boolean;
+    body?: any;
+}
+
 interface Configuration {
-    oneCallback(trx: any): Promise<Record<string, any>>;
-    allCallback(trx: any): Promise<Record<string, any>[]>;
+    oneCallback(trx: any): Promise<Record<string, any> | StatusResponse>;
+    allCallback(trx: any): Promise<Record<string, any>[] | StatusResponse>;
 }
 
 /**

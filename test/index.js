@@ -31,6 +31,8 @@ console.log(
         exp.lt('col', 12),
         exp.gte('col', '70')
       )
-    ).one()
+    ).one(),
+
+    table1.set({ available: false }).one(),
 
 );
