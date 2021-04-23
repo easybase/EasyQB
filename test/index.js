@@ -20,11 +20,17 @@ console.log(
     )
   ).groupBy('hello').one(),
   
-      table2.where(
-        e2.and(
-          e2.eq('first_name', 'Mohammed'),
-          e2.gt('age', '30'),
-        )
-      ).all(),
+  table2.set({ firstName: 'Robert', nickname: 'Rob' })
+    .where({ firstName: 'Matt' })
+    .all(),
+
+  table2.insert({ firstName: 'Shallan', lastName: 'Davar' }).all(),
+
+    table1.delete().where(
+      exp.and(
+        exp.lt('col', 12),
+        exp.gte('col', '70')
+      )
+    ).one()
 
 );
