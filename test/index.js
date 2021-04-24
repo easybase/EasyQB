@@ -12,7 +12,7 @@ const table2 = easyqb('table2');
 const { e: e2 } = table2;
 
 console.log(
-  table1.return(exp.add())).return('123').where(
+  table1.return(exp.add('col1')).return('123').where(
     exp.and(
       exp.eq`first_name`('Mohammed'),
       exp.gt('age', '30'),
