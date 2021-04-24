@@ -88,14 +88,14 @@ const math = {
     abs: unaryFunction('abs')
 }
 
-const string = {
-    like: binary('like'),
-    notLike: binary('not like'),
-    likeAny: binary('like any'),
-    notLikeAny: binary('not like any'),
-    likeAll: binary('like all'),
-    notLikeAll: binary('not like all')
-}
+// const string = {
+//     like: binary('like'),
+//     notLike: binary('not like'),
+//     likeAny: binary('like any'),
+//     notLikeAny: binary('not like any'),
+//     likeAll: binary('like all'),
+//     notLikeAll: binary('not like all')
+// }
 
 const array = {
     unnest: naryFunction('unnest')
@@ -106,6 +106,5 @@ module.exports = {
     ...boolean,
     ...comparison,
     ...math,
-    ...string,
     ...array
 }

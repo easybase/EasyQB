@@ -754,16 +754,6 @@ interface Abs {
 //
 
 interface StringOperations<T extends StringTypes> {
-    like: T extends 'new' ? Like : LikeChain
-    notLike: T extends 'new' ? NotLike : NotLikeChain
-    // any
-    likeAny: T extends 'new' ? LikeAny : LikeAnyChain
-    notLikeAny: T extends 'new' ? NotLikeAny : NotLikeAnyChain
-    // all
-    likeAll: T extends 'new' ? LikeAll : LikeAllChain
-    notLikeAll: T extends 'new' ? NotLikeAll : NotLikeAllChain
-
-
     concat: T extends 'new' ? Concat : ConcatChain
     similarTo: T extends 'new' ? SimilarTo : SimilarToChain
     notSimilarTo: T extends 'new' ? NotSimilarTo : NotSimilarToChain
@@ -776,79 +766,6 @@ interface Concat {
     (...args: StringArgument[]): ConcatChain
 }
 interface ConcatChain extends Concat, StringExpression { }
-
-interface Like {
-    (strings: TemplateStringsArray, ...args: any[]): LikeChain
-    (arg1: StringArgument): LikeChain
-    (arg1: StringArgument, arg2: StringArgument): LikeEscape
-}
-interface LikeChain {
-    (strings: TemplateStringsArray, ...args: any[]): LikeEscape
-    (arg2: StringArgument): LikeEscape
-}
-
-interface LikeEscape extends BooleanExpression {
-    escape(strings: TemplateStringsArray, ...args: any[]): BooleanExpression
-    escape(character: StringArgument): BooleanExpression
-}
-
-interface NotLike {
-    (strings: TemplateStringsArray, ...args: any[]): NotLikeChain
-    (arg1: StringArgument): NotLikeChain
-    (arg1: StringArgument, arg2: StringArgument): LikeEscape
-}
-interface NotLikeChain {
-    (strings: TemplateStringsArray, ...args: any[]): LikeEscape
-    (arg2: StringArgument): LikeEscape
-}
-
-interface LikeAny {
-    (strings: TemplateStringsArray, ...args: any[]): LikeAnyChain
-    (arg1: StringArgument): LikeAnyChain
-    (arg1: StringArgument, arg2: CompatibleArray<'string'>): BooleanExpression
-    (arg1: StringArgument, arg2: TableArgument): BooleanExpression
-}
-interface LikeAnyChain {
-    (strings: TemplateStringsArray, ...args: any[]): BooleanExpression
-    (arg2: CompatibleArray<'string'>): BooleanExpression
-    (arg2: TableArgument): BooleanExpression
-}
-
-interface LikeAll {
-    (strings: TemplateStringsArray, ...args: any[]): LikeAllChain
-    (arg1: StringArgument): LikeAllChain
-    (arg1: StringArgument, arg2: CompatibleArray<'string'>): BooleanExpression
-    (arg1: StringArgument, arg2: TableArgument): BooleanExpression
-}
-interface LikeAllChain {
-    (strings: TemplateStringsArray, ...args: any[]): BooleanExpression
-    (arg2: CompatibleArray<'string'>): BooleanExpression
-    (arg2: TableArgument): BooleanExpression
-}
-
-interface NotLikeAny {
-    (strings: TemplateStringsArray, ...args: any[]): NotLikeAnyChain
-    (arg1: StringArgument): NotLikeAnyChain
-    (arg1: StringArgument, arg2: CompatibleArray<'string'>): BooleanExpression
-    (arg1: StringArgument, arg2: TableArgument): BooleanExpression
-}
-interface NotLikeAnyChain {
-    (strings: TemplateStringsArray, ...args: any[]): BooleanExpression
-    (arg2: CompatibleArray<'string'>): BooleanExpression
-    (arg2: TableArgument): BooleanExpression
-}
-
-interface NotLikeAll {
-    (strings: TemplateStringsArray, ...args: any[]): NotLikeAllChain
-    (arg1: StringArgument): NotLikeAllChain
-    (arg1: StringArgument, arg2: CompatibleArray<'string'>): BooleanExpression
-    (arg1: StringArgument, arg2: TableArgument): BooleanExpression
-}
-interface NotLikeAllChain {
-    (strings: TemplateStringsArray, ...args: any[]): BooleanExpression
-    (arg2: CompatibleArray<'string'>): BooleanExpression
-    (arg2: TableArgument): BooleanExpression
-}
 
 interface SimilarTo {
     (strings: TemplateStringsArray, ...args: any[]): SimilarToChain
