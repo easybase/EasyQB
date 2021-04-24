@@ -901,25 +901,7 @@ export interface Limit {
  // select * from person limit (select 10)
  ```
     */
-   limit(limit: number | SQ): this
-
-   /**
-    * **LIMIT clause** - template string
-    * 
-    * Specify the maximum number of results to return
-    * 
-    * Only the last call to `.limit` is used.
-    * 
-    * @example
- ```js
- sq.from`person`.limit`5`
- // select * from person limit 5
- 
- sq.from`person`.limit`${1} + ${7}`
- // select * from person limit 1 + 7
- ```
-    */
-   limit(strings: TemplateStringsArray, ...args: any[]): this
+   limit(limit: number): this
 }
 
 
@@ -946,25 +928,7 @@ export interface Offset {
  // select * from person limit (select 10)
  ```
     */
-   offset(offset: number | SQ): this
-
-   /**
-    * **OFFSET clause** - template string
-    *
-    * Specify the number of results to skip before returning
-    * 
-    * Only the last call to `.offset` is used.
-    * 
-    * @example
- ```js
- sq.from`person`.limit`5`
- // select * from person limit 5
- 
- sq.from`person`.limit`${1} + ${7}`
- // select * from person limit 1 + 7
- ```
-    */
-   offset(strings: TemplateStringsArray, ...args: any[]): this
+   offset(offset: number): this
 }
 
 export interface Joiner<T> {
@@ -1374,13 +1338,6 @@ interface SetOperators {
    exceptAll(...queries: SQ[]): this
 }
 
-export interface Values {
-   /** TODO */
-   values(): this
-}
-
-
-
 export interface Insert {
    /**
     * **INSERT clause** - template string
@@ -1483,21 +1440,6 @@ export interface Insert {
  ```
     */
    insert(query: SQ): this
-
-   /**
-    * **INSERT clause** - default values
-    * 
-    * Inserts default values.
-    * 
-    * Only the last call to `.insert` is used.
-    * 
-    * @example
- ```js
- sq.from('person').insert()
- // insert into person default values
- ```
-    */
-   insert(): this
 }
 
 export interface Set {

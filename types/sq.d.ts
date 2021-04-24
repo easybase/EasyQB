@@ -19,7 +19,7 @@ interface Delete
 
 interface Insert extends M.With, M.Return, M.Insert, M.Logic { }
 
-interface Values extends M.OrderBy, M.Limit, M.Offset, M.Values { }
+interface Values extends M.OrderBy, M.Limit, M.Offset { }
 
 interface Helper extends M.End, M.TransactionMethods, M.GroupHelpers { }
 
