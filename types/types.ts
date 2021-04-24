@@ -58,16 +58,7 @@ const q4 = e.unknown(23)
 const q5 = e.json({})
 const q6 = e.boolean(true)
 const q7 = e(null).boolean
-const q8 = e(e.unknown(23412341234)).boolean
-
-const r1 = e.like('asd', 'asdf')
-const r2 = e.like('asd')('asdf')
-const r3 = e('asd').like('asd')
-const r4 = e.notLike('asd', 'asdf')
-const r5 = e.notLike('asd')('asdf')
-const r6 = e('asd').notLike('asd')
-const r7 = e.like`asdf`('asd')
-const r8 = e.like('a')`asdf`
+const q8 = e(e.unknown(23412341234)
 
 const s1 = e([])
 const s2 = e.arrayGet([], 23)

@@ -8,6 +8,7 @@ interface StatusResponse {
 interface Configuration {
     oneCallback(trx: any): Promise<Record<string, any> | StatusResponse>;
     allCallback(trx: any): Promise<Record<string, any>[] | StatusResponse>;
+    tableName?: String;
 }
 
 /**
