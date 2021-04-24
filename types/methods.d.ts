@@ -44,31 +44,6 @@ export interface With {
    with(...tables: { [table: string]: SQ | Value[] }[]): this
 
    /**
-    * **WITH clause** - template string
-    * 
-    * Constructs a Common Table Expression (CTE)
-    * 
-    * Call `.withRecursive` to make the CTE recursive.
-    * 
-    * Multiple calls to `.with` are joined with ', '.
-    *
-    * @example
- ```js
- sq.with`n as (select ${20} as age)`.from`n`.return`age`
- // with n as (select 20 as age) select age from n
- 
- sq.with`width as (select ${10} as n)`
-   .with`height as (select ${20} as n)`
-   .return`width.n * height.n as area`
- // with width as (select 10 as n), height as (select 20 as n)
- // select width.n * height.n as area
- ```
-    */
-   with(strings: TemplateStringsArray, ...args: any[]): this
-
-
-
-   /**
     * **WITH RECURSIVE** - recursive CTE
     * 
     * Makes the Common Table Expression recursive.
@@ -95,7 +70,6 @@ export interface With {
  ```
     */
    withRecursive(...tables: { [table: string]: SQ | Value[] }[]): this
-   withRecursive(strings: TemplateStringsArray, ...args: any[]): this
 }
 
 interface Execute extends Promise<Row[]> {
@@ -190,44 +164,6 @@ interface ExpressFrom {
  ```
     */
    (...tables: (Expression | { [alias: string]: Expression | Value[] })[]): SQW
-
-   /**
-    * **FROM clause** - template string - express `.from`
-    * 
-    * The first call to `.from` specifies the query table.
-    * 
-    * Subsequent calls have different effects based on query type.
-    * 
-    * * `select * from a, b, c`
-    * * `update a from b, c`
-    * * `delete a using b, c`
-    * * `insert into a`
-    *
-    * @example
- ```js
- sq`book`
- // select * from book
- 
- sq`book`.set({ archived: true })
- // update book set archived = $1
- 
- sq.delete`book`
- // delete from book
- 
- sq`book`.insert({ title: 'Squirrels!' })
- // insert into book (title) values ($1)
- 
- sq`book`.from`author`
- // select * from book, author
- 
- sq`book join comment`
- // select * from book join comment
- 
- sq`${sq.raw('book')}`
- // select * from book
- ```
-    */
-   (strings: TemplateStringsArray, ...args: any[]): SQW
 }
 
 export interface Return {
@@ -273,31 +209,6 @@ export interface Return {
  ```
     */
    return(...fields: (Expression | any | { [alias: string]: Expression | any })[]): this
-
-   /**
-    * **SELECT or RETURNING clause** - template string
-    *
-    * Pass `.return` the fields the query should return 
-    *
-    * @example
- ```js
- sq.from`book.`return`title`
- // select title from book
- 
- sq.from`person`.set`age = age + 1`.return`id, age`
- // update person set age = age + 1 returning id, age
- 
- sq.delete.from`person`.return`id, age`
- // delete from person returning id, age
- 
- sq.from`person`.insert({ age: 12 }).return`id, age`
- // insert into person (age) values ($1) returning id, age
- 
- sq.return`${7}, ${8}, ${9}`.return`${10}`
- // select $1, $2, $3, $4
- ```
-    */
-   return(strings: TemplateStringsArray, ...args: any[]): this
 }
 
 export interface ExpressReturn {
@@ -337,29 +248,6 @@ export interface ExpressReturn {
  ```
     */
    (...fields: (Expression | any | { [alias: string]: Expression | any })[]): SQ
-
-
-   /**
-    * SELECT or RETURNING clause - specify fields to returns - express `.return`
-    *
-    * Accepts fields as template string
-    *
-    * @example
- ```js
- sq`book``id = ${3}``title`
- // select title from book where id = $1
- 
- sq`person`()`id, age`.set`age = age + 1`
- // update person set age = age + 1 returning id, age
- 
- sq.delete`person``age > ${23}``id, age`
- // delete from person where age > $1 returning id, age
- 
- sq`person`()`id, age`.insert({ age: 12 })
- // insert into person (age) values ($1) returning id, age
- ```
-    */
-   (strings: TemplateStringsArray, ...args: any[]): SQ
 }
 
 export interface Where {
@@ -450,30 +338,6 @@ export interface ExpressWhere {
  ```
     */
    (...conditions: Conditions): SQR
-
-   /**
-    * **WHERE clause** - template string - express `.where`
-    *
-    * Filters result set.
-    * 
-    * Multiple calls to `.where` are joined with _" and "_.
-    *
-    * @example
- ```js
-  sq`person``age < ${18}`
-  // select * from person where (age < $1)
-  
-  sq`person``age < ${7}`.set`group = ${'infant'}`
-  // update person set group = $1 where (age < $2)
-  
-  sq.delete`person``age < ${7}`
-  // delete from person where (age < $1)
-  
-  sq`person``age > ${3}`.where`age < ${7}`
-  // select * from person where (age > $1) and (age < $2)
-  ```
-    */
-   (strings: TemplateStringsArray, ...args: any[]): SQR
 }
 
 interface Logic extends And, Or { }
@@ -500,29 +364,6 @@ export interface And {
  ```
     */
    and(...conditions: Conditions): this
-
-   /**
-    * **AND condition** - template string
-    * 
-    * Condition to chain after `.where`, `.on`, or `.having`.
-    * 
-    * @example
- ```js
- sq.from`person`.where`age > 20`.and`age < 30`
- // select * from person where (age > 20) and (age < 30)
- 
- sq.from`book`.leftJoin`author`
-   .on`book.author_id = author.id`.and`author.status = 'active'`
- // select * from book left join author
- // on (book.author_id = author.id) and (author.status = 'active')
- 
- sq.from`book`.return`genre, avg(book.rating) as r`
-   .groupBy`genre`.having`r > 7`.and`r <= 10`
- // select genre, avg(book.rating) as r from book
- // group by genre having (r > 7) and (r <= 10)
- ```
-    */
-   and(strings: TemplateStringsArray, ...args: any[]): this
 }
 
 interface Or {
@@ -549,29 +390,6 @@ interface Or {
  ```
     */
    or(...conditions: Conditions): this
-
-   /**
-    * **OR condition** - template string
-    * 
-    * Condition to chain after `.where`, `.on`, or `.having`.
-    * 
-    * @example
- ```js
- sq.from`person`.where`age < 20`.or`age > 30`
- // select * from person where (age < 20) or (age > 30)
- 
- sq.from`book`.leftJoin`author`
-   .on`book.author_id = author.id`.or`book.editor_id = author.id`
- // select * from book left join author
- // on (book.author_id = author.id) or (book.editor_id = author.id)
- 
- sq.from`book`.return`genre, avg(book.rating) as r`
-   .groupBy`genre`.having`r < 2`.or`r > 8`
- // select genre, avg(book.rating) as r from book
- // group by genre having (r < 2) or (r > 8)
- ```
-    */
-   or(strings: TemplateStringsArray, ...args: any[]): this
 }
 
 export interface Distinct {
@@ -768,25 +586,6 @@ export interface GroupBy {
  ```
     */
    groupBy(...args: GroupItems): this
-
-   /**
-    * **GROUP BY clause** - template string
-    * 
-    * Multiple `.groupBy` calls are joined with ', '.
-    * 
-    * @example
- ```js
- sq.from`book`.return`genre, count(*)`.groupBy`genre`
- // select genre, count(*) from book group by genre
- 
- sq.from`book`.return`genre, year`.groupBy`genre, year`
- // select genre, year from book group by genre, year
- 
- sq.from`book`.return`genre, year`.groupBy`genre`.groupBy`year`
- // select genre, year from book group by genre, year
- ```
-    */
-   groupBy(strings: TemplateStringsArray, ...args: any[]): this
 }
 
 export interface Having {
@@ -807,18 +606,6 @@ export interface Having {
  ```
     */
    having(...conditions: Conditions): this
-
-   /**
-    * **HAVING clause** - template string
-    * 
-    * @example
- ```js
- sq.from`book`.return`genre`
-   .groupBy`genre`.having`count(*) > 10`
- // select genre from book group by genre having count(*) > 10
- ```
-    */
-   having(strings: TemplateStringsArray, ...args: any[]): this
 }
 
 export interface OrderBy {
@@ -856,25 +643,6 @@ export interface OrderBy {
       using?: string
       nulls?: 'first' | 'last'
    })[]): this
-
-   /**
-    * **ORDER BY clause** - template string
-    * 
-    * Multiple `.orderBy` calls are joined with ', '.
-    * 
-    * @example
- ```js
- sq.from`book`.orderBy`title desc, sales / ${1000}`
- // select * from book order by title desc, sales / 1000
- 
- sq.from`book`.orderBy`title`.orderBy`sales / 1000`
- // select * from book order by title desc, sales / 1000
- 
- sq.from`book`.orderBy`title using ~<~' nulls last`
- // select * from book order by title using ~<~ nulls last
- ```
-    */
-   orderBy(strings: TemplateStringsArray, ...args: any[]): this
 }
 
 
@@ -936,11 +704,6 @@ export interface Joiner<T> {
     * **JOIN clause** - table arguments
     */
    join(...tables: (Expression | { [alias: string]: Expression | Value[] })[]): T
-
-   /**
-    * **JOIN clause** - template string
-    */
-   join(strings: TemplateStringsArray, ...args: any[]): T
 }
 
 export interface Join {
@@ -985,48 +748,6 @@ export interface Join {
  ```
     */
    join(...tables: (Expression | { [alias: string]: Expression | Value[] })[]): this
-
-   /**
-    * **JOIN clause** - template string
-    * 
-    * Creates a join table.
-    * 
-    * Accepts the same arguments as `.from`
-    * 
-    * Joins are inner by default. Specify the join type with a prior call to `.inner`, `.left`, `.right`, `.full`, or `.cross`.
-    * 
-    * Joins are natural by default. Call `.on` or `.using` after `.join` to specify join conditions.
-    * 
-    * @example
- ```js
- sq.from`book`.join`author`
- // select * from book natural join author
- 
- sq.from`book as b`.join`author as a`.on`b.author_id = a.id`
- // select * from book as b join author as a on (b.author_id = a.id)
- 
- sq.from`book as b`.join`author as a`
-   .on`b.author_id = a.id`.on`b.genre = 'Fantasy'`
- // select * from book as b join author as a on (b.author_id = a.id) and (b.genre = 'Fantasy')
- 
- sq.from`book as b`.join`author as a`.on`b.author_id = a.id`
-   .and`b.genre = 'Fantasy'`.or`b.special = true`
- // select * from book as b join author as a on (b.author_id = a.id) and (b.genre = $1) or (b.special = true)
- 
- sq.from`book`.join`author`.using`author_id`
- // select * from book join author using (author_id)
- 
- sq.from`a`.join`b`.using`x, y`.using`z`
- // select * from a join b using (x, y, z)
- 
- sq.from`book`.leftJoin`author`.rightJoin`publisher`
- // select * from book natural left join author natural right join publisher
- 
- sq.from`book`.naturalRightJoin`author`.crossjoin`publisher`
- // select * from book natural right join author natural join publisher
- ```
-    */
-   join(strings: TemplateStringsArray, ...args: any[]): this
 
    /**
     * **INNER JOIN** - (inner) join
@@ -1145,29 +866,6 @@ export interface Join {
    on(...conditions: Conditions): this
 
    /**
-    * **JOIN CONDITION** - template string
-    * 
-    * Specifies join conditions for the previous join.
-    * 
-    * Multiple calls to `.on` are joined with _" and "_.
-    * 
-    * @example
- ```js
- sq.from`book as b`.join`author as a`.on`b.author_id = a.id`
- // select * from book as b join author as a on (b.author_id = a.id)
- 
- sq.from`book as b`.join`author as a`
-   .on`b.author_id = a.id`.on`b.genre = 'Fantasy'`
- // select * from book as b join author as a on (b.author_id = a.id) and (b.genre = 'Fantasy')
- 
- sq.from`book as b`.join`author as a`.on`b.author_id = a.id`
-   .and`b.genre = 'Fantasy'`.or`b.special = true`
- // select * from book as b join author as a on (b.author_id = a.id) and (b.genre = $1) or (b.special = true)
- ```
-    */
-   on(strings: TemplateStringsArray, ...args: any[]): this
-
-   /**
     * **JOIN USING** - column names
     * 
     * Specifies the shared column for the previous join
@@ -1184,24 +882,6 @@ export interface Join {
  ```
     */
    using(...columns: string[]): this
-
-   /**
-    * **JOIN USING** - template string
-    * 
-    * Specifies the shared column for the previous join
-    * 
-    * Multiple `.using` calls are joined with ', '.
-    * 
-    * @example
- ```js
- sq.from`book`.join`author`.using`author_id`
- // select * from book join author using (author_id)
- 
- sq.from`a`.join`b`.using`x, y`.using`z`
- // select * from a join b using (x, y, z)
- ```
-    */
-   using(strings: TemplateStringsArray, ...args: any[]): this
 }
 
 interface SetOperators {
@@ -1340,24 +1020,6 @@ interface SetOperators {
 
 export interface Insert {
    /**
-    * **INSERT clause** - template string
-    * 
-    * Specifies the data to insert.
-    * 
-    * Only the last call to `.insert` is used.
-    *
-    * @example
- ```js
- sq.from`person(name, age)`.insert`values (${'bo'}, ${22})`
- // insert into person(name, age) values ('bo', 22)
- 
- sq.from`person(name)`.insert`values ('Jo')`.insert`values ('Mo')`
- // insert into person(name, age) values ('Mo')
- ```
-    */
-   insert(strings: TemplateStringsArray, ...args: any[]): this
-
-   /**
     * **INSERT caluse** - value objects
     * 
     * Specifies the data to insert as objects.
@@ -1476,29 +1138,6 @@ export interface Set {
  ```
     */
    set(...values: Value[]): this
-
-   /**
-    * **SET clause** - template string
-    *
-    * Pass `.set` the values to update.
-    * 
-    * Multiple `.set` calls are joined with ', '.
-    * 
-    * @example
- ```js
- sq.from`person`
-   .set`age = age + 1, processed = true`
- // update person
- // set age = age + 1, processed = true
- 
- sq.from`person`
-   .set`age = age + 1, processed = true`
-   .set`name = ${'Sally'}`
- // update person
- // set age = age + 1, processed = true, name = 'Sally'
- ```
-    */
-   set(strings: TemplateStringsArray, ...args: any[]): this
 }
 
 
