@@ -30,7 +30,7 @@ twitter_username: jekyllrb
 github_username:  jekyll
 
 # Build settings
-theme: just-the-docs
+remote_theme: pmarsceill/just-the-docs
 plugins:
   - jekyll-feed
 
@@ -59,3 +59,8 @@ logo: "/assets/images/banner-logo.png"
 aux_links:
   "Easybase with React":
     - "//easybase.io/react/"
+
+footer_content: "Copyright &copy; 2018-2021 Easybase"
+gh_edit_link: false
+# color_scheme: dark
+
