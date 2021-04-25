@@ -21,4 +21,5 @@ const table1 = easyqb();
 const e = table1.e;
 
 
-table1.delete.where(e.eq('app_name', 'asdf')).all()
+table1.return("My co").where(e.eq('app_name', 'asdf')).all()
+// table1.insert({ "hello world": "123" }).one();

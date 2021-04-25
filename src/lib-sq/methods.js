@@ -1,3 +1,5 @@
+const { normalKey } = require('../lib-util')
+
 /** Query building methods */
 const methods = {
     with: {
@@ -24,7 +26,7 @@ const methods = {
     },
     return: {
         updateContext: (ctx, args) => {
-            ctx.ret.push(args)
+            ctx.ret.push(Array.isArray(args) ? args.map(normalKey) : args)
         }
     },
     distinct: {

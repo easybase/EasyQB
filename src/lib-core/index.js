@@ -1,6 +1,7 @@
 const createQueryBuilder = require('../builder-sq')
 const createExpressionBuilder = require('../builder-expression')
-const { snakeCase, memoize } = require('../lib-util')
+const { memoize, normalKey } = require('../lib-util')
+
 
 /**
  * Creates a version of EasyQB for the given SQL dialect and database adapter.
@@ -17,7 +18,7 @@ const createSqorn = ({ dialect }) => (config = {}) => {
   const { query, expression, parameterize, escape } = dialect
 
   // 1. Create default context properties passed through build tree
-  const mapKey = memoize(snakeCase)
+  const mapKey = memoize(normalKey)
   const defaultContext = { parameterize, escape, mapKey, build }
 
   // 2. Create Expression Builder
