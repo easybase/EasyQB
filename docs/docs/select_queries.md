@@ -18,188 +18,79 @@ nav_order: 10
 * **Limit** [`.limit`](#limit)
 * **Offset** [`.offset`](#offset)
 
-## From
-
-`.from` builds *from* clauses.
-
+## Initialize
 ```js
-sq.from`book`.query
+import Easybase from "easybasejs";
+import ebconfig from "./ebconfig.js";
 
-{ text: 'select * from book',
-  args: [] }
+const table = Easybase.EasybaseProvider({ ebconfig }).db("MYTABLE");
+const { e } = table; // Optional query expressions
 ```
 
-Multiple `.from` calls are joined with `', '`.
-
-```js
-sq.from`book`.from`person`.query
-
-{ text: 'select * from book, person',
-  args: [] }
+## Example Table
+For the following queries, consider the data table below:
+```json
+[
+  { "title": "Avatar", "rating": 83 },
+  { "title": "Titanic", "rating": 75 },
+  { "title": "The Lion King", "rating": 55 },
+  { "title": "Jurassic World", "rating": 59 },
+]
 ```
 
-`.from` accepts strings. **To prevent SQL injection, never source *strings* from user input.**
+## Select
+
+`.return` builds queries to select from. After building a query of any kind, use `.all` or `.one` to execute it.
 
 ```js
-sq.from('book', 'author').query
+table.return().all();
 
-{ text: 'select * from book, author',
-  args: [] }
+[
+  { "title": "Avatar", "rating": 83 },
+  { "title": "Titanic", "rating": 75 },
+  { "title": "The Lion King", "rating": 55 },
+  { "title": "Jurassic World", "rating": 59 },
+]
 ```
 
-<!-- TODO: Consider aliased tables and compatibility with object aliases -->
-
-<!-- ```js -->
-<!-- const b = t('book').as('b')
-const a = t('author').as('a')
-sq.from(b, a).query
-
-{ text: 'select * from book b, author a',
-  args: [] } -->
-<!-- ``` -->
-
-`.from` accepts [Table Expressions](expressions#table).
-<!-- NOTE: Expressions may not be paranthesized in from clause -->
+`.one` will only return the first match.
 
 ```js
-// Postgres-only query
-sq.from(e.unnest([3, 2, 1])).query
+table.return().one();
 
-{ text: 'select * from unnest($1)',
-  args: [[3, 2, 1]] }
+{ "title": "Avatar", "rating": 83 }
 ```
 
-`.from` accepts [Fragments](manual-queries#fragments).
+Pass arguments into `.return` to select only specific columns.
 
 ```js
-// Postgres-only query
-sq.from(sq.txt`unnest(array[1, 2, 3])`).query
+table.return("title").one();
 
-{ text: 'select * from unnest(array[1, 2, 3])',
-  args: [] }
-```
-
-Pass `.from` objects in the form `{ alias: table }` to construct *`table alias`* clauses.
-
-Tables can be strings. **To prevent SQL injection, never source *strings* from user input.**
-
-```js
-sq.from({ b: 'book', p: 'person' }).query
-
-{ text: 'select * from book b, person p',
-  args: [] }
-```
-
-Tables can be [Table Expressions](expressions#table).
-
-```js
-// Postgres-only query
-sq.from({ countDown: e.unnest([3, 2, 1]) }).query
-
-{ text: 'select * from unnest($1) count_down',
-  args: [[3, 2, 1]] }
-```
-
-Tables can be [Fragments](manual-queries#fragments).
-
-```js
-// Postgres-only query
-sq.from({ countDown: sq.txt`unnest(${[3, 2, 1]})` }).query
-
-{ text: 'select * from unnest($1) count_down',
-  args: [[3, 2, 1]] }
-```
-
-Tables can be [Subqueries](manual-queries#subqueries).
-
-```js
-sq.from({ a: sq.sql`select * from author`, b: sq.from`book` }).query
-
-{ text: 'select * from (select * from author) a, (select * from book) b',
-  args: [] }
-```
-
-Tables can be *Arrays of Values*. Column names are inferred from all keys.
-
-Sqorn [converts input object keys](configuration#map-input-keys) to *snake_case* by default.
-
-```js
-sq.from({
-  people: [{ age: 7, firstName: 'Jo' }, { age: 9, firstName: 'Mo' }]
-}).query
-
-{ text: 'select * from (values ($1, $2), ($3, $4)) people(age, first_name)',
-  args: [7, 'Jo', 9, 'Mo'] }
-```
-
-<!-- TODO: Tables can be Values subqueries -->
-
-<!-- ```js -->
-<!-- const values = sq.values(
-    { age: 7, firstName: 'Jo' },
-    { age: 9, firstName: 'Mo' }
-  ).a('people', 'age', 'first_name')
-
-sq.from(sq.values({ age: 7, firstName: 'Jo' }, { age: 9, firstName: 'Mo' }).query
-
-{ text: 'select * from (values ($1, $2), ($3, $4)) people(age, first_name)',
-  args: [7, 'Jo', 9, 'Mo'] } -->
-<!-- ``` -->
-
-Construct join tables manually or learn about building [joins](#joins).
-
-```js
-sq.from`book left join author on book.author_id = author.id`.query
-
-{ text: 'select * from book left join author on book.author_id = author.id',
-  args: [] }
+{ "title": "Avatar" }
 ```
 
 ## Where
 
-`.where` builds *where* clauses.
+`.where` builds *where* clauses. Expressions, `e`, are are used to create comparisons and boolean logic. [Learn more about expressions](docs/expressions.html).
 
 ```js
-sq.from`book`.where`genre = ${'Fantasy'}`.query
+table.return().where(e.eq("title", "The Lion King")).one()
 
-{ text: 'select * from book where (genre = $1)',
-  args: ['Fantasy'] }
+{ "title": "The Lion King", "rating": 55 }
 ```
 
-Multiple `.where` calls are joined with `' and '`.
+For boolean logic, `e.or` and `e.and` can be passed into a `.where` clause.
 
 ```js
-sq.from`book`.where`genre = ${'Fantasy'}`.where`year = ${2000}`.query
+table.return().where(e.or(
+  e.eq("title", "The Lion King"), // Equals
+  e.gt("rating", 80) // Greater than
+)).all()
 
-{ text: 'select * from book where (genre = $1) and (year = $2)',
-  args: ['Fantasy', 2000] }
-```
-
-Conditions can be [Boolean Expressions](expressions#boolean).
-
-```js
-sq.from`book`.where(e`year`.gt(2010).or(e`year`.lt(2018))).query
-
-{ text: 'select * from book where ((year > $1) or (year < $2))',
-  args: [2010, 2018] }
-```
-
-Conditions can be [Fragments](manual-queries#fragments).
-
-```js
-sq.from`book`.where(sq.txt`genre = ${'Fantasy'}`).query
-
-{ text: 'select * from book where (genre = $12)',
-  args: ['Fantasy'] }
-```
-
-Conditions can be [Subqueries](manual-queries#subqueries).
-
-```js
-sq.from`book`.where(sq.sql`select true`).query
-
-{ text: 'select * from book where (select true)',
-  args: [] }
+[
+  { "title": "Avatar", "rating": 83 },
+  { "title": "The Lion King", "rating": 55 }
+]
 ```
 
 Conditions can be objects in the form `{ field: value }`.
@@ -207,70 +98,22 @@ Conditions can be objects in the form `{ field: value }`.
 Each property generates a `field = value` clause.
 
 ```js
-sq.from`book`.where({ genre: 'Fantasy', year: 2000 }).query
+table.return().where({ title: "The Lion King", rating: 55 }).all()
 
-{ text: 'select * from book where ((genre = $1) and (year = $2))',
-  args: ['Fantasy', 2000] }
-```
-
-Values can be [Expressions](expressions).
-
-```js
-sq.from`person`.where({ age: e.add(10, 20) }).query
-
-{ text: 'select * from person where (age = ($1 + $2))',
-  args: [10, 20] }
-```
-
-Values can be [Fragments](manual-queries#fragments).
-
-```js
-sq.from`person`.where({ age: sq.txt`20` }).query
-
-{ text: 'select * from person where (age = 20)',
-  args: [] }
-```
-
-Values can be [Subqueries](manual-queries#subqueries).
-
-```js
-sq.from`test`.where({ moo: sq.sql`select true` }).query
-
-{ text: 'select * from test where (moo = (select true))',
-  args: [] }
-```
-
-Values can be [Raw Arguments](manual-queries#raw-strings).
-
-```js
-sq.from('book', 'author').where({ 'book.id': sq.raw('author.id') }).query
-
-{ text: 'select * from book, author where (book.id = author.id)',
-  args: [] }
-```
-
-`null` values generate a `field is null` expression.
-
-```js
-sq.from`book`.where({ author: null }).query
-
-{ text: 'select * from book where (author is null)',
-  args: [] }
-```
-
-`undefined` values are invalid.
-
-```js
-sq.from`oops`.where({ field: undefined }).query // throws error
+[
+  { "title": "The Lion King", "rating": 55 }
+]
 ```
 
 `array` arguments generate a `field in values` expression.
 
 ```js
-sq.from`book`.where({ id: [7, 8, 9] }).query
+table.return().where({ rating: [55, 56, 57, 58, 59] }).all()
 
-{ text: 'select * from book where (id in ($1, $2, $3))',
-  args: [7, 8, 9] }
+[
+  { "title": "The Lion King", "rating": 55 },
+  { "title": "Jurassic World", "rating": 59 }
+]
 ```
 
 Sqorn [converts input object keys](#map-input-keys) to *snake_case* by default.

@@ -3,13 +3,14 @@
 # To modify the layout, see https://jekyllrb.com/docs/themes/#overriding-theme-defaults
 
 layout: home
+nav_exclude: true
 ---
 
 ## Easybase Query Builder for JavaScript
 
 <br />
 
-This project is based on [sqorn](https://github.com/sqorn/sqorn) using functional expressions and conditionals. It's [almost] a subset, so some features included in Sqorn are not available in this package. More information on this is available below. If you're just starting out, head to the [Select](/docs/select_queries.html) page to begin.
+This project is based on [sqorn](https://github.com/sqorn/sqorn) using functional expressions and conditionals. It's [almost] a subset, so some features included in Sqorn are not available in this package. More information on this is available below. **If you're just starting out, head to the [Select](/docs/select_queries.html) page to begin.**
 
 EasyQB is built into both [_easybase-react_](https://github.com/easybase/easybase-react) and [_easybasejs_](https://github.com/easybase/easybasejs) through the `db` function. It will become the standard query functionality for Easybase, replacing **Frame** which will become deprecated.
 
@@ -19,7 +20,7 @@ The documentation outlined here is very much shortened version of that available
 import Easybase from "easybasejs";
 import ebconfig from "./ebconfig.js";
 
-const table = Easybase.EasybaseProvider({ ebconfig }).db;
+const table = Easybase.EasybaseProvider({ ebconfig }).db();
 const { e } = table;
 
 const deletedNum = await table.delete.where(e.eq('app name', 'right now')).one();
