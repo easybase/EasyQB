@@ -34,7 +34,7 @@ For the following queries, consider the data table below:
   { "title": "Avatar", "rating": 83 },
   { "title": "Titanic", "rating": 75 },
   { "title": "The Lion King", "rating": 55 },
-  { "title": "Jurassic World", "rating": 59 },
+  { "title": "Jurassic World", "rating": 59 }
 ]
 ```
 
@@ -43,7 +43,7 @@ For the following queries, consider the data table below:
 `.return` builds queries to select from. After building a query of any kind, use `.all` or `.one` to execute it.
 
 ```js
-table.return().all();
+await table.return().all();
 
 [
   { "title": "Avatar", "rating": 83 },
@@ -56,7 +56,7 @@ table.return().all();
 `.one` will only return the first match.
 
 ```js
-table.return().one();
+await table.return().one();
 
 { "title": "Avatar", "rating": 83 }
 ```
@@ -64,7 +64,7 @@ table.return().one();
 Pass arguments into `.return` to select only specific columns.
 
 ```js
-table.return("title").one();
+await table.return("title").one();
 
 { "title": "Avatar" }
 ```
@@ -74,23 +74,9 @@ table.return("title").one();
 `.where` builds *where* clauses. Expressions, `e`, are are used to create comparisons and boolean logic. [Learn more about expressions](docs/expressions.html).
 
 ```js
-table.return().where(e.eq("title", "The Lion King")).one()
+await table.return().where(e.eq("title", "The Lion King")).one()
 
 { "title": "The Lion King", "rating": 55 }
-```
-
-For boolean logic, `e.or` and `e.and` can be passed into a `.where` clause.
-
-```js
-table.return().where(e.or(
-  e.eq("title", "The Lion King"), // Equals
-  e.gt("rating", 80) // Greater than
-)).all()
-
-[
-  { "title": "Avatar", "rating": 83 },
-  { "title": "The Lion King", "rating": 55 }
-]
 ```
 
 Conditions can be objects in the form `{ field: value }`.
@@ -98,9 +84,25 @@ Conditions can be objects in the form `{ field: value }`.
 Each property generates a `field = value` clause.
 
 ```js
-table.return().where({ title: "The Lion King", rating: 55 }).all()
+await table.return().where({ title: "The Lion King", rating: 55 }).all()
 
 [
+  { "title": "The Lion King", "rating": 55 }
+]
+```
+
+Use [Expressions](expressions) to build complex conditions with [`e.and`](operations#and), [`e.or`](operations#or) and [`e.not`](operations#not).
+
+```js
+await table.return().where(
+  e.or(
+    e.eq("title", "The Lion King"), // Equals
+    e.gt("rating", 80) // Greater than
+  )
+).all()
+
+[
+  { "title": "Avatar", "rating": 83 },
   { "title": "The Lion King", "rating": 55 }
 ]
 ```
@@ -108,7 +110,7 @@ table.return().where({ title: "The Lion King", rating: 55 }).all()
 `array` arguments generate a `field in values` expression.
 
 ```js
-table.return().where({ rating: [55, 56, 57, 58, 59] }).all()
+await table.return().where({ rating: [55, 56, 57, 58, 59] }).all()
 
 [
   { "title": "The Lion King", "rating": 55 },
@@ -116,548 +118,34 @@ table.return().where({ rating: [55, 56, 57, 58, 59] }).all()
 ]
 ```
 
-Sqorn [converts input object keys](#map-input-keys) to *snake_case* by default.
-
-```js
-sq.from('person').where({ firstName: 'Kaladin' }).query
-
-{ text: 'select * from person where (first_name = $1)',
-  args: ['Kaladin'] }
-```
-
-Multiple arguments passed to `.where` are joined with `' and '`.
-
-```js
-sq.from('person').where({ name: 'Rob' }, sq.txt`(name = ${'Bob'})`).query
-
-{ text: 'select * from person where (name = $1) and (name = $2)',
-  args: ['Rob', 'Bob'] }
-```
-
-<!-- TODO: Conditions in an array are joined with `or`. -->
-
-<!-- ```js -->
-<!-- sq.from('person').where([sq.txt`true`, sq.txt`true`], sq.txt`false`).query
-
-{ text: 'select * from person where ((true) and (true)) or (false)',
-  args: ['Rob', 'Bob'] } -->
-<!-- ``` -->
-
-Use [Expressions](expressions) to build complex conditions with [`e.and`](operations#and), [`e.or`](operations#or) and [`e.not`](operations#not).
-
-```js
-sq.from('person').where(
-  e.and(
-    e.eq`first_name`('Mohammed'),
-    e.eq`last_name`('Ali'),
-    e.gt`age`(30).not
-  )
-).query
-
-{ text: 'select * from person where ((first_name = $1) and (last_name = $2) and not((age > $3)))',
-  args: ['Mohammed', 'Ali', 30] }
-```
-
-## Select
-
-`.return` builds *select* clauses.
-
-```js
-sq.return`${1} a, ${2} b, ${1} + ${2} sum`.query
-
-{ text: 'select $1 a, $2 b, $3 + $4 sum',
-  args: [1, 2, 1, 2] }
-```
-
-Multiple `.return` calls are joined with `', '`.
-
-```js
-sq.from`book`.return`title, author`.return`id`.query
-
-{ text: 'select title, author, id from book',
-  args: [] }
-```
-
-`.return` accepts strings. **To prevent SQL injection, never source strings from user input.**
-
-```js
-sq.from('book').return('title', 'author').query
-
-{ text: 'select title, author from book',
-  args: [] }
-```
-
-`.return` accepts [Fragments](manual-queries#fragments).
-
-```js
-sq.return(sq.txt('moo'), sq.txt`now()`).query
-
-{ text: 'select $1, now()',
-  args: ['moo'] }
-```
-
-`.return` accepts [Subqueries](manual-queries#subqueries).
-
-```js
-sq.return(sq.sql`select now()`, sq.return(e(8))).query
-
-{ text: 'select (select now()), (select $1)',
-  args: [8] }
-```
-
-`.return` accepts [Expressions](expressions).
-
-```js
-sq.return(e`genre`.eq('fantasy')).from('book').query
-
-{ text: 'select (genre = $1) from book',
-  args: ['fantasy'] }
-```
-
-`.return` accepts objects in the form `{ alias: value }`. Each property generates a `value alias` clause.
-
-Values can be strings. **To prevent SQL injection, never source strings from user input.**
-
-```js
-sq.return({ name: 'person.name' , age: 'person.age' }).from('person').query
-
-{ text: 'select person.name name, person.age age from person',
-  args: [] }
-```
-
-Values can be [Expressions](expressions).
-
-```js
-sq.return({ hello: e('world'), sum: e.add(1, 2) }).query
-
-{ text: 'select $1 hello, ($2 + $3) sum',
-  args: ['world', 1, 2] }
-```
-
-Values can be [Fragments](manual-queries#fragments).
-
-```js
-sq.return({ sum: sq.txt`${2} + ${3}`, firstName: sq.txt('Bob') }).query
-
-{ text: 'select $1 + $2 sum, $3 first_name',
-  args: [2, 3, 'Bob'] }
-```
-
-Values can be [Subqueries](manual-queries#subqueries).
-
-```js
-sq.return({
-  time: sq.sql`select now()`,
-  eight: sq.return(e(8))
-}).query
-
-{ text: 'select (select now()) time, (select $1) eight',
-  args: [8] }
-```
-
-## Distinct
-
-Call `.distinct` to get only one row per group of duplicates.
-
-```js
-sq.from('book').return('genre', 'author').distinct.query
-
-{ text: 'select distinct genre, author from book',
-  args: [] }
-```
-
-`.distinct` is idempotent.
-
-```js
-sq.from('book').return('genre', 'author').distinct.distinct.query
-
-{ text: 'select distinct genre, author from book',
-  args: [] }
-```
-
-### Distinct On
-
-**Postgres only:** Call `.distinctOn` to get only the first rows distinct on the given columns.
-
-```js
-sq.from`weather`
-  .return`location, time, report`
-  .distinctOn`location`
-  .query
-
-{ text: 'select distinct on (location) location, time, report from weather',
-  args: [] }
-```
-
-`.distinctOn` can be called multiple times.
-
-```js
-sq.from`weather`
-  .return`location, time, report`
-  .distinctOn`location`
-  .distinctOn`time`
-  .query
-
-{ text: 'select distinct on (location, time) location, time, report from weather',
-  args: [] }
-```
-
-`.distinctOn` accepts strings. **To prevent SQL injection, never source strings from user input.**
-
-```js
-sq.from('weather')
-  .return('location', 'time', 'report')
-  .distinctOn('location', 'time')
-  .query
-
-{ text: 'select distinct on (location, time) location, time, report from weather',
-  args: [] }
-```
-
-`.distinctOn` accepts [Expressions](expressions).
-
-```js
-sq.return`n`
-  .distinctOn(e`n`.mod`2`)
-  .from({ n: e.unnest([1, 2, 3, 4, 5]) })
-  .query
-
-{ text: 'select distinct on ((n % 2)) n from unnest($1) n',
-  args: [[1, 2, 3, 4, 5]] }
-```
-
-`.distinctOn` accepts [Fragments](manual-queries#fragments).
-
-```js
-sq.from('generate_series(0, 10) n')
-  .return('n')
-  .distinctOn(sq.txt`n / 3`)
-  .query
-
-{ text: 'select distinct on (n / 3) n from generate_series(0, 10) n',
-  args: [] }
-```
-
-`.distinctOn` accepts [Subqueries](manual-queries#subqueries).
-
-```js
-sq.from('generate_series(0, 10) n')
-  .return('n')
-  .distinctOn(sq.return`n / 3`)
-  .query
-
-{ text: 'select distinct on ((select n / 3)) n from generate_series(0, 10) n',
-  args: [] }
-```
-
-## Express
-
-The first, second and third calls of `sq` are equivalent to calling `.from`, `.where` and `.return` respectively.
-
-The following are three sets of equivalent queries:
-
-```js
-// select * from person
-sq`person`
-sq('person')
-sq.from`person`
-
-// select * from person where (name = $1)
-sq`person``name = ${'Jo'}`
-sq`person`({ name: 'Jo' })
-sq.from`person`.where`name = ${'Jo'}`
-
-// select age from person where (name = $1)
-sq`person``name = ${'Jo'}``age`
-sq.from`person`.where`name = ${'Jo'}`.return`age`
-sq.from('person').where({ name: 'Jo' }).return('age')
-```
-
-## Extend
-
-Construct new queries by extending existing queries with `.extend`.
-
-```js
-const FantasyBook = sq.from('book').where({ genre: 'fantasy' })
-const Title = sq.return('title')
-
-sq.extend(FantasyBook, Title).query
-
-{ text: 'select title from book where (genre = $1)',
-  args: ['fantasy'] }
-```
-
-`.extend` can be called in the middle of a query chain.
-
-```js
-sq.from('book').extend(sq.where({ genre: 'fantasy' })).return('title').query
-
-{ text: 'select title from book where (genre = $1)',
-  args: ['fantasy'] }
-```
-
-Every query chain has its own [Express](#express) state.
-
-```js
-sq`author`.extend(
-  sq`book``book.author_id = author.id``title`,
-  sq`publisher``publisher.id = book.publisher_id``publisher`
-)`author.id = 7``first_name`.query
-
-{ text: 'select title, publisher, first_name from author, book, publisher where (book.author_id = author.id) and (publisher.id = book.publisher_id) and (author.id = 7)',
-  args: [] }
-```
-
-## Group By
-
-`.groupBy` builds *group by* clauses.
-
-```js
-sq.from`person`
-  .groupBy`age`
-  .return`age, count(*)`
-  .query
-
-{ text: 'select age, count(*) from person group by age',
-  args: [] }
-```
-
-Multiple `.groupBy` calls are joined with `', '`.
-
-```js
-sq.from`person`
-  .groupBy`age`.groupBy`last_name`
-  .return`age, last_name, count(*)`
-  .query
-
-{ text: 'select age, last_name, count(*) from person group by age, last_name',
-  args: [] }
-```
-
-`.groupBy` accepts strings.
-
-```js
-sq.from('person')
-  .groupBy('age', 'last_name')
-  .return('age', 'last_name', 'count(*)')
-  .query
-
-{ text: 'select age, last_name, count(*) from person group by age, last_name',
-  args: [] }
-```
-
-`.groupBy` accepts [Expressions](expressions).
-
-```js
-sq.from(sq.txt`generate_series(${1}, ${10}) n`)
-  .groupBy(e.mod`n`(2))
-  .return(e.mod`n`(2), 'sum(n)')
-  .query
-
-{ text: "select (n % $1), sum(n) from generate_series($2, $3) n group by (n % $4)",
-  args: [2, 1, 10, 2] }
-```
-
-`.groupBy` accepts [Fragments](manual-queries#fragments).
-
-```js
-sq.from('book')
-  .groupBy(sq.txt`genre`)
-  .return('count(*)')
-  .query
-
-{ text: 'select count(*) from book group by genre',
-  args: [] }
-```
-
-`.groupBy` accepts [Subqueries](manual-queries#subqueries).
-
-```js
-sq.from('book')
-  .groupBy(sq.return`genre = 'Fantasy'`)
-  .return('count(*)')
-  .query
-
-{ text: "select count(*) from book group by (select genre = 'Fantasy')",
-  args: [] }
-```
-
-Parenthesize arguments by wrapping them in arrays. Arrays can be nested.
-
-```js
-sq.from('person')
-  .groupBy('age', [[sq.txt`last_name`], 'first_name'])
-  .return('count(*)')
-  .query
-
-{ text: 'select count(*) from person group by age, ((last_name), first_name)',
-  args: [] }
-```
-
-### Rollup
-
-**Postgres Only:** `.groupBy` accepts *rollup* arguments. `.rollup` accepts the  same arguments as `.groupBy` except *rollup*, *cube* or *grouping sets* arguments.
-
-```js
-sq.from('t').groupBy(sq.rollup('a', ['b', sq.txt`c`], 'd')).query
-
-// postgres
-{ text: 'select * from t group by rollup (a, (b, c), d)',
-  args: [] }
-```
-
-### Cube
-
-**Postgres Only:** `.groupBy` accepts *cube* arguments. `.cube` accepts the  same arguments as `.rollup`.
-
-```js
-sq.from('t').groupBy(sq.cube('a', ['b', sq.txt`c`], 'd')).query
-
-// postgres
-{ text: 'select * from t group by cube (a, (b, c), d)',
-  args: [] }
-```
-
-### Grouping Sets
-
-**Postgres Only:** `.groupBy` accepts *grouping sets* arguments. `.groupingSets` accepts the  same arguments as [`.groupBy`](#group-by).
-
-```js
-sq.from('t').groupBy(sq.groupingSets(['a', 'b', 'c'], sq.groupingSets(['a', 'b']), ['a'], [])).query
-
-// postgres
-{ text: 'select * from t group by grouping sets ((a, b, c), grouping sets ((a, b)), (a), ())',
-  args: [] }
-```
-
-## Having
-
-Filter groups with `.having`. `.having` accepts the  same arguments as [`.where`](#where).
-
-```js
-sq.from`person`.groupBy`age`.having`age < ${20}`.query
-
-{ text: 'select * from person group by age having (age < $1)',
-  args: [20] }
-```
-
-Multiple calls to `.having` are joined with `' and '`.
-
-```js
-sq.from`person`.groupBy`age`.having`age >= ${20}`.having`age < ${30}`.query
-
-{ text: 'select * from person group by age having (age >= $1) and (age < $2)',
-  args: [20, 30] }
-```
-
-Build complex *having* conditions with [Expressions](expressions).
-
-```js
-sq.from('book')
-  .groupBy('genre')
-  .having(e.or(
-    e.gt`count(*)`(10),
-    e.lte`count(*)`(100)
-  ))
-  .return('genre', 'count(*)')
-  .query
-
-{ text: 'select genre, count(*) from book group by genre having (((count(*) > $1) or (count(*) <= $2)))',
-  args: [10, 100] }
-```
-
 ## Order By
 
-Specify row ordering with `.orderBy`.
+Specify row ordering with `.orderBy`. This function accepts objects.
+
+Property `by` is used for ordering. It can be a string, [Expression](expressions), [Fragment](manual-queries#fragments) or [Subqueries](manual-queries#subqueries). Set property `sort` to either `'asc'` or `'desc'`.
 
 ```js
-sq.from`book`.orderBy`title asc nulls last`.query
+await table().return().orderBy({ by: "rating", sort: "asc" }).all()
 
-{ text: 'select * from book order by title asc nulls last',
-  args: [] }
+[
+  { "title": "The Lion King", "rating": 55 },
+  { "title": "Jurassic World", "rating": 59 },
+  { "title": "Titanic", "rating": 75 },
+  { "title": "Avatar", "rating": 83 }
+]
 ```
 
-Multiple calls to `.orderBy` are joined with `', '`.
+`.orderBy` accepts multiple sort objects, which will be evaluated in order.
 
 ```js
-sq.from`book`.orderBy`title`.orderBy`year`.query
+await table().return().orderBy({ by: "rating", sort: "asc" }, { by: "title", sort: "desc" }).all()
 
-{ text: 'select * from book order by title, year',
-  args: [] }
-```
-
-`.orderBy` accepts strings. **To prevent SQL injection, never source *strings* from user input.**
-
-```js
-sq.from('book').orderBy('sales / 1000', 'title').query
-
-{ text: 'select * from book order by sales / 1000, title',
-  args: [] }
-```
-
-`.orderBy` accepts [Expressions](expressions).
-
-```js
-sq.from('book').orderBy(e`sales`.div(1000), 'title').query
-
-{ text: 'select * from book order by (sales / $1), title',
-  args: [1000] }
-```
-
-`.orderBy` accepts [Fragments](manual-queries#fragments).
-
-```js
-sq.from('book').orderBy(sq.txt`sales / ${1000}`, 'title').query
-
-{ text: 'select * from book order by sales / $1, title',
-  args: [1000] }
-```
-
-`.orderBy` accepts [Subqueries](manual-queries#subqueries).
-
-```js
-sq.from('book').orderBy(sq.return`sales / ${1000}`, 'title').query
-
-{ text: 'select * from book order by (select sales / $1), title',
-  args: [1000] }
-```
-
-`.orderBy` accepts objects.
-
-Property `by` is used for ordering. It can be a string, [Expression](expressions), [Fragment](manual-queries#fragments) or [Subqueries](manual-queries#subqueries).
-
-```js
-sq.from('book').orderBy({ by: e`sales`.div(1000) }, { by: 'title' }).query
-
-{ text: 'select * from book order by (sales / $1), title',
-  args: [1000] }
-```
-
-Set property `sort` to either `'asc'` or `'desc'`. SQL defaults to ascending.
-
-```js
-sq.from('book').orderBy({ by: 'title', sort: 'desc' }).query
-
-{ text: 'select * from book order by title desc',
-  args: [] }
-```
-
-**Postgres Only:** Set property `using` to a comparison operator. Do not set both properties `sort` and `using`
-
-```js
-sq.from`person`.orderBy({ by: 'first_name', using: '~<~' }).query
-
-{ text: 'select * from person order by first_name using ~<~',
-  args: [] }
-```
-
-**Postgres Only:** Set property `nulls` to `'first'` or `'last'` to select *null* ordering. SQL defaults to nulls first.
-
-```js
-sq.from('book').orderBy({ by: 'title', nulls: 'last' }).query
-
-{ text: 'select * from book order by title nulls last',
-  args: [] }
+[
+  { "title": "The Lion King", "rating": 55 },
+  { "title": "Jurassic World", "rating": 59 },
+  { "title": "Titanic", "rating": 75 },
+  { "title": "Avatar", "rating": 83 }
+]
 ```
 
 ## Limit
@@ -665,54 +153,12 @@ sq.from('book').orderBy({ by: 'title', nulls: 'last' }).query
 Pass `.limit` the maximum number of rows to fetch.
 
 ```js
-sq.from('person').limit(8).query
+await table.return().limit(2).all()
 
-{ text: 'select * from person limit $1',
-  args: [8] }
-```
-
-Only the last call to `.limit` is used.
-
-```js
-sq.from('person').limit(7).limit(5).query
-
-{ text: 'select * from person limit $1',
-  args: [5] }
-```
-
-`.limit` can be called a template tag.
-
-```js
-sq.from`person`.limit`1 + 7`.query
-
-{ text: 'select * from person limit 1 + 7',
-  args: [] }
-```
-
-`.limit` accepts [Number Expressions](expressions#number).
-
-```js
-sq.from('person').limit(e(1).add(7)).query
-
-{ text: 'select * from person limit ($1 + $2)',
-  args: [1, 7] }
-```
-
-`.limit` accepts [Fragments](manual-queries#fragments).
-
-```js
-sq.from('person').limit(sq.txt`1 + 7`).query
-
-{ text: 'select * from person limit 1 + 7',
-  args: [] }
-```
-`.limit` accepts [Subqueries](manual-queries#subqueries).
-
-```js
-sq.from('person').limit(sq.return`1 + 7`).query
-
-{ text: 'select * from person limit (select 1 + 7)',
-  args: [] }
+[
+  { "title": "Avatar", "rating": 83 },
+  { "title": "Titanic", "rating": 75 }
+]
 ```
 
 ## Offset
@@ -720,55 +166,36 @@ sq.from('person').limit(sq.return`1 + 7`).query
 Pass `.offset` the number of rows to skip before returning rows.
 
 ```js
-sq.from('person').offset(8).query
+await table.return().offset(1).all()
 
-{ text: 'select * from person offset $1',
-  args: [8] }
+[
+  { "title": "Titanic", "rating": 75 },
+  { "title": "The Lion King", "rating": 55 },
+  { "title": "Jurassic World", "rating": 59 }
+]
 ```
 
-Only the last call to `.offset` is used.
+`.offset` and `.limit` can be used in conjugation for pagination of your data table.
 
 ```js
-sq.from('person').offset(7).offset(5).query
+let page = 0;
 
-{ text: 'select * from person offset $1',
-  args: [5] }
+await table.return().limit(2).offset(page * 2).all();
+
+[
+  { "title": "Avatar", "rating": 83 },
+  { "title": "Titanic", "rating": 75 }
+]
+
+page++;
+await table.return().limit(2).offset(page * 2).all();
+
+[
+  { "title": "The Lion King", "rating": 55 },
+  { "title": "Jurassic World", "rating": 59 }
+]
 ```
 
-`.offset` can be called a template tag.
-
-```js
-sq.from`person`.offset`1 + 7`.query
-
-{ text: 'select * from person offset 1 + 7',
-  args: [] }
-```
-
-`.offset` accepts [Number Expressions](expressions#number).
-
-```js
-sq.from('person').offset(e(1).add(7)).query
-
-{ text: 'select * from person offset ($1 + $2)',
-  args: [1, 7] }
-```
-
-`.offset` accepts [Fragments](manual-queries#fragments).
-
-```js
-sq.from('person').offset(sq.txt`1 + 7`).query
-
-{ text: 'select * from person offset 1 + 7',
-  args: [] }
-```
-`.offset` accepts [Subqueries](manual-queries#subqueries).
-
-```js
-sq.from('person').offset(sq.return`1 + 7`).query
-
-{ text: 'select * from person offset (select 1 + 7)',
-  args: [] }
-```
 
 ## Joins
 
