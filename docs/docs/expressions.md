@@ -1,10 +1,7 @@
 ---
 id: expressions
 title: Expressions
-sidebar_label: Expressions
 ---
-
-**Reference** [Postgres](https://www.postgresql.org/docs/current/functions.html), [SQLite](https://www.sqlite.org/lang_expr.html), [MySQL](https://dev.mysql.com/doc/refman/en/functions.html), [T-SQL](https://docs.microsoft.com/en-us/sql/t-sql/language-elements/expressions-transact-sql), [Oracle](https://docs.oracle.com/cd/E11882_01/server.112/e41084/operators.htm)
 
 ## Introduction
 

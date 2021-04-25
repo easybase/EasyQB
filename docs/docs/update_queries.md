@@ -1,11 +1,8 @@
 ---
 id: update-queries
-title: Update Queries
-sidebar_label: Update
+title: Update
+nav_order: 13
 ---
-
-**Reference:** [Postgres](https://www.postgresql.org/docs/current/sql-update.html), [SQLite](https://www.sqlite.org/lang_update.html), 
-[MySQL](https://dev.mysql.com/doc/refman/en/update.html), [T-SQL](https://docs.microsoft.com/en-us/sql/t-sql/queries/update-transact-sql), [Oracle](https://docs.oracle.com/database/121/SQLRF/statements_10008.htm)
 
 ## Overview
 

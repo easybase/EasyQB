@@ -1,11 +1,10 @@
 ---
 id: executing-queries
 title: Executing Queries
-sidebar_label: Executing Queries
+nav_order: 14
 ---
 
 * **Execute** [`.all`](#all-rows) [`.one`](#one-row)
-* **Compile** [`.query`](#manually) [`.unparameterized`](#manually)
 
 ## All Rows
 

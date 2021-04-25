@@ -1,11 +1,8 @@
 ---
 id: insert-queries
-title: Insert Queries
-sidebar_label: Insert
+title: Insert
+nav_order: 11
 ---
-
-**Reference:** [Postgres](https://www.postgresql.org/docs/current/sql-insert.html), [SQLite](https://www.sqlite.org/lang_insert.html), 
-[MySQL](https://dev.mysql.com/doc/refman/en/insert.html), [T-SQL](https://docs.microsoft.com/en-us/sql/t-sql/statements/insert-transact-sql), [Oracle](https://docs.oracle.com/database/121/SQLRF/statements_9015.htm)
 
 ## Overview
 

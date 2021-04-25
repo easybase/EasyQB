@@ -1,11 +1,8 @@
 ---
 id: select-queries
-title: Select Queries
-sidebar_label: Select
+title: Select
+nav_order: 10
 ---
-
-**Reference:** [Postgres](https://www.postgresql.org/docs/current/sql-select.html), [SQLite](https://www.sqlite.org/lang_select.html), 
-[MySQL](https://dev.mysql.com/doc/refman/en/select.html), [T-SQL](https://docs.microsoft.com/en-us/sql/t-sql/queries/select-transact-sql), [Oracle](https://docs.oracle.com/cd/B19306_01/server.102/b14200/statements_10002.htm)
 
 ## Overview
 
