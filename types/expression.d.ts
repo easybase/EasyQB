@@ -93,7 +93,8 @@ interface AllOperations<T extends 'new' | 'unknown'> extends
     StringOperations<T>,
     ArrayOperations<T>,
     RowOperations<T>,
-    TableOperations<T> { }
+    TableOperations<T>,
+    Aggregators { }
 
 interface NewExpression extends Expression<'new'>,
     AllOperations<'new'> { }
@@ -778,3 +779,16 @@ interface NotExists {
 //
 
 interface JSONOperations<T extends JSONTypes> { }
+
+interface Aggregators {
+    /** Return maximum aggregation for number column */
+    max(columnName): string;
+    /** Return minimum aggregation for number column */
+    min(columnName): string;
+    /** Return average aggregation for number column */
+    avg(columnName): string;
+    /** Return count aggregation of a query */
+    count(columnName): string;
+    /** Return sum aggregation for number column */
+    sum(columnName): string;
+}

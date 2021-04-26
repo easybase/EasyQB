@@ -1,4 +1,7 @@
 const createExpressionCompiler = require('./compile')
+const { normalKey } = require('../lib-util');
+
+const aggregator = (op) => (columnName) => `${op}(${normalKey(columnName)})`;
 
 module.exports = ({ defaultContext, expression }) => {
   const { expressions } = expression
@@ -8,9 +11,15 @@ module.exports = ({ defaultContext, expression }) => {
   const chain = createChain(builder)
   Object.defineProperties(builder, {
     ...builderProperties({ compile, newContext }),
-    ...methodProperties({ expressions, chain })
+    ...methodProperties({ expressions, chain }),
   })
-  return chain()
+  const ret = chain();
+  ret.max = aggregator('max');
+  ret.min = aggregator('min');
+  ret.avg = aggregator('avg');
+  ret.count = aggregator('count');
+  ret.sum = aggregator('sum');
+  return ret;
 }
 
 const builderProperties = ({ compile, newContext }) => ({
