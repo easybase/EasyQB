@@ -1,94 +1,44 @@
-<br />
-
 <p align="center">
   <a href="https://easybase.io">
     <img src="https://easybase.io/assets/images/logo_black.png" alt="easybase logo black" width="80" height="80">
   </a>
 </p>
 
+## EasyQB — Query Builder for Easybase
+
 <br />
 
-# Easybase Query Builder
-This project is based on [sqorn](https://github.com/sqorn/sqorn) using functional expressions and conditionals. There's no execution workflow or [manual query builder](https://sqorn.org/docs/about#manual-query-builder).
+Query Builder used in Easybase's JavaScript-based packages for [serverless frontend applications](https://easybase.io/about/2021/01/30/What-Is-a-Serverless-Application/). This project is based on Sqorn using functional expressions and conditionals. **If you're just starting out, [head to the Select page to begin](/docs/select_queries.html).**
 
-<!-- ABOUT THE PROJECT -->
-## About The Project
+EasyQB is built into both [_easybase-react_](https://github.com/easybase/easybase-react) and [_easybasejs_](https://github.com/easybase/easybasejs), through the exported `db` function. This function allows developers to logically create Easybase CRUD operations in code. It will become the standard query functionality for Easybase, replacing `Frame`.
 
-Database CRUD operations, created intuitively and safely, for use in compliance with [Easybase](https://easybase.io/). This will be statefully built-in the [_easybasejs_](https://github.com/easybase/easybasejs) and [_easybase-react_](https://github.com/easybase/easybase-react) packages.
+The documentation outlined here is very much a modified version of that available on the [Sqorn website](https://sqorn.org/docs/about.html).
 
-**From Sqorn**:
-> Composable: Build complex queries from simple parts. Chain, extend, and embed queries.
->
-> Intuitive: Sqorn's use of modern Javascript language features like tagged template literals and promises makes building and issuing SQL queries a breeze.
->
-> Concise: Sqorn provides concise syntax for common CRUD operations.
->
-> Fast: 10x faster than Knex.js and 200x faster than Squel
->
-> Secure: Sqorn generates parameterized queries safe from SQL injection. Sqorn has no external dependencies.
+### Basic Usage:
+
+Note that queries are not executed until a call to `.one` or `.all`.
+
+```js
+import Easybase from "easybasejs";
+import ebconfig from "./ebconfig.js";
+
+const table = Easybase.EasybaseProvider({ ebconfig }).db();
+const { e } = table; // Expressions
+
+// Delete 1 record
+await table.delete.where(e.eq('app name', 'right now')).one();
+
+// Basic select example
+const records = await table.return().where(e.gt('rating', 15)).limit(10).all();
+console.log(records);
+```
+
+To use this library you must first create and account an account at [easybase.io](https://easybase.io/), then [configure your project](https://easybase.io/react/#setup).
+
+<hr />
 
 ### Built With
 
 * [Sqorn](https://github.com/sqorn/sqorn)
 * [easybase.io](https://easybase.io)
 * [microbundle](https://github.com/developit/microbundle)
-
-<!-- USAGE EXAMPLES -->
-## Usage
-
-```js
-var sq = require('./src');
-
-const easyqb = (tableName) => {
-  const n = sq({ oneCallback: async () => { }, allCallback: async () => { } })(tableName);
-  return n;
-}
-
-const table1 = easyqb('table1');
-const exp = table1.e;
-
-const table2 = easyqb('table2');
-const { e: e2 } = table2;
-
-console.log(
-  table1.return('first_name').where(
-    exp.and(
-      exp.eq('first_name', 'Mohammed'),
-      exp.gt('age', '30'),
-        )
-      ).one(),
-  
-      table2.return('first_name').where(
-        e2.and(
-          e2.eq('first_name', 'Mohammed'),
-          e2.gt('age', '30'),
-        )
-      ).all(),
-
-);
-```
-
-<!-- EXAMPLES -->
-## Examples
-
-[Starting from scratch to serverless database + authentication](https://easybase.io/react/)
-
-[Stateful database array walkthrough](https://easybase.io/react/2020/09/20/The-Best-Way-To-Add-A-Database-To-Your-React-React-Native-Apps/)
-
-[User authentication walkthrough](https://www.freecodecamp.org/news/build-react-native-app-user-authentication/)
-
-[Deploying cloud functions](https://easybase.io/react/2021/03/09/The-Easiest-Way-To-Deploy-Cloud-Functions-for-your-React-Projects/)
-
-<!-- LICENSE -->
-## License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
-<!-- CONTACT -->
-## Contact
-
-[@easybase_io](https://twitter.com/easybase_io) - hello@easybase.io
-
-Project Link: [https://github.com/easybase/easybase-react](https://github.com/easybase/easybase-react)
-
-<a href="https://www.producthunt.com/posts/easybase-io?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-easybase-io" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=278380&theme=dark" alt="Easybase.io - Serverless platform for apps and projects. React.js Focused. | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
