@@ -6,86 +6,32 @@ nav_order: 13
 
 ## Overview
 
-* **With** [`.with`](select-queries#with) [`.withRecursive`](select-queries#recursive-ctes)
-* **Update** [`.from`](#set)
 * **Set** [`.set`](#set)
-* **From** [`.from`](#from-2)
 * **Where** [`.where`](#where-1)
-* **Returning** [`.return`](#returning)
 
 ## Set
 
-`.from` specifies the table to modify and `.set` specifies the fields to update. [`.from`](#from) works it does in [Delete](delete-queries#from) queries.
+`.set` specifies the fields to update in the form of `{ field: value }`. It can accept multiple object, but these will be merged into one.
 
 ```js
-sq.from`person`
-  .set`age = age + 1, name = ${'Sally'}`
-  .query
+await table.set({ title: "Pulp Fiction" }).one()
+> 1
 
-{ text: 'update person set age = age + 1, name = $1',
-  args: ['Sally'] }
+// { "title": "Pulp Fiction", "rating": 83 },
 ```
 
-Multiple calls to `.set` are joined with `', '`.
+Using `.all` applies to the same query logic as Select and Delete.
 
-```js
-sq.from`person`
-  .set`age = age + 1`
-  .set`name = ${'Sally'}`
-  .query
+```jsx
+await table.set({ title: "Pulp Fiction" }).all()
+> 4
 
-{ text: 'update person set age = age + 1, name = $1',
-  args: ['Sally'] }
-```
-
-`.set` accepts objects in the form `{ field: value }`. Each property generates a `field = value` clause.
-
-```js
-sq.from('person')
-  .set(
-    { firstName: 'Robert', nickname: 'Rob' },
-    { processed: true }
-  )
-  .query
-
-{ text: 'update person set first_name = $1, nickname = $2, processed = $3',
-  args: ['Robert', 'Rob', true] }
-```
-
-Values can be [Expressions](expressions).
-
-```js
-sq.from('person')
-  .set({ age: e.add(3, 4) })
-  .query
-
-{ text: 'update person set age = ($1 + $2)',
-  args: [3, 4] }
-```
-
-Values can be [Fragments](manual-queries#fragments).
-
-```js
-sq.from('person')
-  .set({ age: sq.txt`3 + 4` })
-  .query
-
-{ text: 'update person set age = 3 + 4',
-  args: [] }
-```
-
-Values can be [Subqueries](manual-queries#subqueries).
-
-```js
-sq.from('person')
-  .set({
-    firstName: sq.sql`select 'Bob'`,
-    lastName: sq.return`'Smith'`
-  })
- .query
-
-{ text: "update person set first_name = (select 'Bob'), last_name = (select 'Smith')",
-  args: [] }
+// [
+//   { "title": "Pulp Fiction", "rating": 83 },
+//   { "title": "Pulp Fiction", "rating": 75 },
+//   { "title": "Pulp Fiction", "rating": 55 },
+//   { "title": "Pulp Fiction", "rating": 59 }
+// ]
 ```
 
 ## Where
@@ -93,7 +39,7 @@ sq.from('person')
 Filter the rows to update with `.where`.
 
 ```js
-sq.from`person`
+await table
   .where({ firstName: 'Matt' })
   .set({ firstName: 'Robert', nickname: 'Rob' })
   .query
@@ -103,44 +49,3 @@ sq.from`person`
 ```
 
 `.where` works it does in [Select](select-queries) queries.
-
-## From
-
-**Postgres Only:** The first `.from` call forms the update clause. Subsequent `.from` calls form the *from* clause.
-
-```js
-sq.from`book`
-  .from`author`
-  .set({ available: false })
-  .where`book.author_id = author.id and author.contract = 'terminated'`
-  .query
-
-{ text: "update book set available = $1 from author where (book.author_id = author.id and author.contract = 'terminated')",
-  args: [false] }
-```
-
-## Returning
-
-**Postgres Only:** Return the updated rows with [`.return`](select-queries#select).
-
-```js
-sq.from`person`
-  .where`age > 60 and old = false`
-  .set`old = true`
-  .return`id, age`
-  .query
-
-{ text: 'update person set old = true where (age > 60 and old = false) returning id, age',
-  args: [] }
-```
-
-## Express
-
-[Express](select-queries#express) syntax works.
-
-```js
-sq`person`({ firstName: 'Rob' })`id`.set({ firstName: 'Robert'}).query
-
-{ text: 'update person set first_name = $1 where first_name = $2 returning id',
-  args: ['Robert', 'Rob'] }
-```

@@ -6,63 +6,32 @@ nav_order: 12
 
 ## Overview
 
-* **With** [`.with`](select-queries#with) [`.withRecursive`](select-queries#recursive-ctes)
 * **Delete** [`.delete`](#delete)
-* **From** [`.from`](#from-1)
-* **Using** [`.from`](#using-1)
-* **Where** [`.where`](#where-1)
-* **Returning** [`.return`](#returning)
+* **Where** [`.where`](#where)
 
 ## Delete
 
-Delete queries look like [Select](select-queries) queries with an additional call to `.delete`.
+Delete queries look like [Select](/docs/select_queries.html) queries with an additional call to `.delete`. **This will return the number of rows deleted.**
+
 
 ```js
-sq.delete.from`person`.query
-sq.from`person`.delete.query // equivalent
+await table.delete().one();
+> 1
 
-{ text: 'delete from person',
-  args: [] }
+//  { "title": "Avatar", "rating": 83 },
 ```
 
-`.delete` is idempotent.
+Executing a delete query with `.one` only deletes the first row found, whereas `.all` will delete all rows found.
 
 ```js
-sq`book`.delete.delete.delete.query
+await table.delete().where(e.gt('rating', 55)).all();
+> 3
 
-{ text: 'delete from book',
-  args: [] }
-```
-
-## From
-
-[`.from`](#from) works it does in [Select](select-queries) queries.
-
-However, be aware of certain SQL constraints Sqorn does not yet enforce.
-
-* Delete queries require exactly one, named table.
-* The table may not be a subquery or expression.
-* Joins are not allowed.
-
-Reference more than one table by using:
-
-* Subqueries in the *Where* clause
-* With clause (CTE) join tables
-* Dialect-specific SQL extensions
-
-## Using
-
-**Postgres Only:** The first `.from` call forms the delete clause. Subsequent `.from` calls form the *using* clause.
-
-```js
-sq.delete
-  .from`book`
-  .from`author`
-  .where`book.author_id = author.id and author.contract = 'terminated'`
-  .query
-
-{ text: "delete from book using author where (book.author_id = author.id and author.contract = 'terminated')",
-  args: [] }
+// [
+//   { "title": "Avatar", "rating": 83 },
+//   { "title": "Titanic", "rating": 75 },
+//   { "title": "Jurassic World", "rating": 59 }
+// ]
 ```
 
 ## Where
@@ -70,32 +39,18 @@ sq.delete
 Filter the rows to delete with `.where`.
 
 ```js
-sq.delete.from`person`.where`id = ${723}`.query
+await table.delete().where(
+  e.or(
+    e.eq("title", "The Lion King"), // Equals
+    e.gt("rating", 80) // Greater than
+  )
+).all()
+> 2
 
-{ text: 'delete from person where (id = $1)',
-  args: [723] }
+// [
+//   { "title": "Avatar", "rating": 83 },
+//   { "title": "The Lion King", "rating": 55 }
+// ]
 ```
 
-`.where` works it does in [Select](select-queries) queries.
-
-## Returning
-
-**Postgres Only:** Return the deleted rows with [`.return`](select-queries#select).
-
-```js
-sq.delete.from`person`.return`name`.query
-
-{ text: 'delete from person returning name',
-  args: [] }
-```
-
-## Express
-
-[Express](select-queries#express) syntax works.
-
-```js
-sq`person`({ job: 'student' })`name`.delete.query
-
-{ text: 'delete from person where job = $1 returning name',
-  args: ['student'] }
-```
+Note: `.where` works in delete queries just it does in [Select](select-queries) queries.

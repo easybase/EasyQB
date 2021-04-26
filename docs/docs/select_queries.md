@@ -6,17 +6,12 @@ nav_order: 10
 
 ## Overview
 
-* **With** [`.with`](#with) [`.withRecursive`](#recursive-ctes)
 * **Select** [`.return`](#select)
-* **Distinct** [`.distinct`](#distinct) [`.distinctOn`](#distinct-on)
-* **From** [`.from`](#from) [`.join`](#joins) [`.leftJoin`](#joins) [`.rightJoin`](#joins) [`.fullJoin`](#joins) [`.crossJoin`](#joins) [`.naturalJoin`](#joins) [`.naturalLeftJoin`](#joins) [`.naturalRightJoin`](#joins) [`.naturalFullJoin`](#joins) [`.on`](#on) [`.using`](#using)
 * **Where** [`.where`](#where)
-* **Group By** [`.groupBy`](#group-by) [`.rollup`](#rollup) [`.cube`](#cube) [`.groupingSets`](#grouping-sets)
-* **Having** [`.having`](#having)
-* **Sets** [`.union`](#union-intersect-except) [`.intersect`](#union-intersect-except) [`.except`](#union-intersect-except) [`.unionAll`](#union-all-intersect-all-except-all) [`.intersectAll`](#union-all-intersect-all-except-all) [`.exceptAll`](#union-all-intersect-all-except-all)
 * **Order By** [`.orderBy`](#order-by)
 * **Limit** [`.limit`](#limit)
 * **Offset** [`.offset`](#offset)
+* **Group By** [`.groupBy`](#group-by)
 
 ## Initialize
 ```js
@@ -40,7 +35,7 @@ For the following queries, consider the data table below:
 
 ## Select
 
-`.return` builds queries to select from. After building a query of any kind, use `.all` or `.one` to execute it.
+`.return` builds queries to select from. **After building a query , use `.all` or `.one` to execute it.** This applies to all types of queries.
 
 ```js
 await table.return().all();
@@ -196,199 +191,30 @@ await table.return().limit(2).offset(page * 2).all();
 ]
 ```
 
+## Group By
 
-## Joins
-
-`.join`, `.leftJoin`, `.rightJoin` and `.fullJoin` build inner, left, right and full joins respectively. Either [`.on`](#on) or [`.using`](#using) must be called immediately after.
+`.groupBy` accepts a column name and builds *group by* clauses. You must also provide some aggregator function in `return`, such as **count(*)**, **max(rating)**, or **avg(rating)**.
 
 ```js
-sq.from`book`.join`author`.on`book.author_id = author.id`.query
+await table.return('count(*)').groupBy('title').all()
 
-{ text: 'select * from book join author on (book.author_id = author.id)',
-  args: [] }
+[ { count: 4 } ]
+
+await table.return('max(rating)').groupBy('rating').all()
+
+[ { max_rating: 83 } ]
 ```
 
-`.naturalJoin`, `.naturalLeftJoin`, `.naturalRightJoin` and `.naturalFullJoin` build natural joins. Calling [`.on`](#on) or [`.using`](#using) after a natural join is invalid.
+<!-- 
+## Having
+
+Filter groups with `.having`. `.having` accepts the  same arguments as [`.where`](#where).
+
+This will filter rows used in some aggregate method.
 
 ```js
-sq.from`book`.naturalRightJoin`author`.query
+await table.return('avg(rating)').groupBy('rating').having(e.lt('rating', 83)).all()
 
-{ text: 'select * from book natural right join author',
-  args: [] }
-```
-
-`.crossJoin` builds a cross join.
-
-```js
-sq.from`book`.crossJoin`author`.query
-
-{ text: 'select * from book cross join author',
-  args: [] }
-```
-
-Join methods accept the  same arguments as [`.from`](#from).
-
-```js
-sq.from({ b: 'book' })
-  .naturalFullJoin({ a: 'author' })
-  .naturalRightJoin('publisher')
-  .query
-
-{ text: 'select book b natural full join author a natural right join publisher',
-  args: [] }
-
-```
-
-### On
-
-`.on` specifies join conditions. It accepts the  same arguments as [`.where`](#where). `.on` must be called exactly once.
-
-```js
-sq.from({ b: 'book' })
-  .join({ a: 'author'}).on({ 'b.author_id': sq.raw('a.id') })
-  .query
-
-{ text: 'select * from book b join author a on (b.author_id = a.id)',
-  args: [] }
-```
-
-Build complex join conditions with [Expressions](expressions).
-
-```js
-sq.from({ t: 'ticket' })
-  .leftJoin({ p: 'person' })
-  .on(e.or(
-    e.eq`p.first_name``t.first_name`,
-    e.eq`p.last_name``t.last_name`
-  ))
-  .query
-
-{ text: 'select * from ticket t left join person p on ((p.first_name = t.first_name) or (p.last_name = t.last_name))',
-  args: [] }
-```
-
-### Using
-
-Alternatively, specify join columns with `.using`. `.using` must be called exactly once.
-
-```js
-sq.from`book`.join`author`.using`author_id`.query
-
-{ text: 'select * from book join author using (author_id)',
-  args: [] }
-```
-
-`.using` accepts strings.
-
-```js
-sq.from('a').join('b').using('x', 'y', 'z').query
-
-{ text: 'select * from a join b using (x, y, z)',
-  args: [] }
-```
-
-## Sets
-
-### Union, Intersect, Except
-
-Pass select subqueries to `.union`, `.intersect` and `.except` to perform set operations.
-
-```js
-const Person = sq.from`person`
-const Young = Person.where`age < 30`
-const Middle = Person.where`age >= 30 and age < 60`
-const Old = Person.where`age >= 60`
-
-Person.except(Young).query
-
-{ text: 'select * from person except (select * from person where (age < 30))',
-  args: [] }
-
-Young.union(Middle, Old).query
-
-{ text: 'select * from person where (age < 30) union (select * from person where (age >= 30 and age < 60)) union (select * from person where (age >= 60))',
-  args: [] }
-```
-
-### Union All, Intersect All, Except All
-
-`.unionAll`, `.intersectAll` and `.exceptAll` can be used to prevent duplicate elimination.
-
-```js
-Young.unionAll(Old).query
-
-{ text: 'select * from person where (age < 30) union all (select * from person where (age >= 60))',
-  args: [] }
-```
-
-Set operators can be chained.
-
-```js
-Person.except(Young).intersect(Person.except(Old)).query
-
-{ text: 'select * from person except (select * from person where (age < 30)) intersect (select * from person except (select * from person where (age >= 60)))',
-  args: [] }
-```
-
-## With
-
-Construct CTEs (Common Table Expressions) with `.with`.
-
-```js
-sq.with`n (select ${20} age)`.from`n`.return`age`.query
-
-{ text: 'with n (select $1 age) select age from n',
+{ text: 'select * from person group by age having (age < $1)',
   args: [20] }
-```
-
-`.with` can be called multiple times.
-
-```js
-sq.with`width (select ${10} n)`
-  .with`height (select ${20} n)`
-  .return`width.n * height.n area`
-  .query
-
-{ text: 'with width (select $1 n), height (select $2 n) select width.n * height.n area',
-  args: [10, 20] }
-```
-
-`.with` accepts objects in the form `{ alias: table }`. Tables can be [Subqueries](manual-queries#subqueries).
-
-```js
-sq.with({
-    width: sq.return({ n: 10 }),
-    height: sq.sql`select ${20} n`
-  })
-  .return({ area: sq.txt`width.n * height.n` })
-  .query
-
-{ text: 'with width (select $1 n), height (select $2 n) select width.n * height.n area',
-  args: [10, 20] }
-```
-
-Tables can be arrays of row objects. A *values* clause is generated. Column names are inferred from all keys.
-
-```js
-const people = [{ age: 7, name: 'Jo' }, { age: 9, name: 'Mo' }]
-sq.with({ people }).return`max(age)`.from`people`.query
-
-{ text: 'with people(age, name) (values ($1, $2), ($3, $4)) select max(age) from people',
-  args: [7, 'Jo', 9, 'Mo'] }
-```
-
-### Recursive CTEs
-
-`.withRecursive` creates a *recursive* CTE.
-
-```js
-const one = sq.return`1`
-const next = sq.return`n + 1`.from`t`.where`n < 100`
-sq.withRecursive({ 't(n)': one.unionAll(next) })
-  .from('t')
-  .return('sum(n)')
-  .query
-
-{ text: 'with recursive t(n) (select 1 union all (select n + 1 from t where (n < 100))) select sum(n) from t',
-  args: [] }
-```
+``` -->

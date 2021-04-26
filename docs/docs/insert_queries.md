@@ -6,159 +6,43 @@ nav_order: 11
 
 ## Overview
 
-* **With** [`.with`](select-queries#with) [`.withRecursive`](select-queries#recursive-ctes)
-* **Insert** [`.from`](#insert) [`.insert`](#insert)
-* **Returning** [`.return`](#returning)
+* **Insert** [`.insert`](#insert)
 
 ## Insert
 
-`.from` specifies the table to insert into and `.insert` specifies the data to insert. [`.from`](#from-1) works it does in delete queries.
+Use `.insert` to specify data to insert into your data table. **This will return the number of records inserted**.
 
 ```js
-sq.from`person(first_name, last_name)`
-  .insert`values (${'Shallan'}, ${'Davar'})`
-  .query
+await table.insert.insert({ title: "Forest Gump", rating: 82 }).one()
+> 1
 
-{ text: 'insert into person(first_name, last_name) values ($1, $2)',
-  args: ['Shallan', 'Davar'] }
+// { title: "Forest Gump", rating: 82 }
 ```
 
-To insert one row, pass `.insert` a single object. Column names are inferred from the object's keys.
-
-Sqorn [converts input object keys](#map-input-keys) to *snake_case* by default.
+Columns that are not passed in the new entry will be cast to *null*.
 
 ```js
-sq.from('person')
-  .insert({ firstName: 'Shallan', lastName: 'Davar' })
-  .query
+await table.insert({ title: "Forest Gump" }).one()
+> 1
 
-{ text: 'insert into person(first_name, last_name) values ($1, $2)',
-  args: ['Shallan', 'Davar'] }
-```
-
-`undefined` values are inserted as `default`. `default` is a keyword, not a paraemeter.
-
-```js
-sq.from('test').insert({ a: undefined, b: null }).query
-
-{ text: 'insert into test(a, b) values (default, $1)',
-  args: [null] }
+// { title: "Forest Gump", rating: null }
 ```
 
 To insert multiple rows, pass multiple objects. Column names are inferred from the keys of all objects.
 
-```js
-sq.from('person')
-  .insert(
-    { firstName: 'Shallan', lastName: 'Davar' },
-    { firstName: 'Navani', lastName: 'Kholin' }
-  )
-  .query
-
-{ text: 'insert into person(first_name, last_name) values ($1, $2), ($3, $4)',
-  args: ['Shallan', 'Davar', 'Navani', 'Kholin'] }
-```
-
-Alternatively, pass `.insert` an array of objects.
+Executing this command with either `.all` or `.one` will only insert one copy of the provided rows.
 
 ```js
-sq.from('person')
-  .insert([
-    { firstName: 'Shallan', lastName: 'Davar' },
-    { firstName: 'Navani', lastName: 'Kholin' }
-  ])
-  .query
+await table.insert(
+  { title: "Forest Gump", rating: 82 },
+  { title: "Joker", rating: 58 },
+  { title: "Inception" }
+).one()
+> 3
 
-{ text: 'insert into person(first_name, last_name) values ($1, $2), ($3, $4)',
-  args: ['Shallan', 'Davar', 'Navani', 'Kholin'] }
-```
-
-Values can be [Expressions](expressions).
-
-```js
-sq.from('person').insert({ firstName: e.upper('moo') }).query
-
-{ text: 'insert into person(first_name) values (upper($1))',
-  args: ['moo'] }
-```
-
-Values can be [Fragments](manual-queries#fragments).
-
-```js
-sq.from('person').insert({ firstName: sq.txt`'moo'` }).query
-
-{ text: "insert into person(first_name) values ('moo')",
-  args: [] }
-```
-
-Values can be [Subqueries](manual-queries#subqueries).
-
-```js
-sq.from('person').insert({
-    firstName: sq.return`${'Shallan'}`,
-    lastName: sq.txt('Davar')
-  })
-  .query
-
-{ text: "insert into person(first_name, last_name) values ((select $1), $2)",
-  args: ['Shallan', 'Davar'] }
-```
-
-`.insert` accepts subqueries.
-
-```js
-sq.from('superhero(name)')
-  .insert(
-    sq.return`${'batman'}`.union(sq.return`${'superman'}`)
-  )
-  .query
-
-{ text: "insert into superhero(name) (select $1 union (select $2))",
-  args: ['batman', 'superman'] }
-```
-
-Pass `undefined` to insert default values.
-
-```js
-sq.from('person').insert(undefined).query
-
-{ text: 'insert into person default values',
-  args: [] }
-```
-
-Only the last call to `.insert` is used.
-
-```js
-sq.from('person')
-  .insert({ firstName: 'Shallan', lastName: 'Davar' })
-  .insert({ firstName: 'Navani', lastName: 'Kholin' })
-  .query
-
-{ text: 'insert into person(first_name, last_name) values ($1, $2)',
-  args: ['Navani', 'Kholin'] }
-```
-
-## Returning
-
-**Postgres Only:** Return the inserted rows with [`.return`](select-queries#select).
-
-```js
-sq.from('book')
-.insert({ title: 'Squirrels and Acorns' })
-.return('id')
-.query
-
-{ text: 'insert into book(title) values ($1) returning id',
-  args: ['Squirrels and Acorns'] }
-```
-
-## Express
-
-[Express](select-queries#express) syntax works.
-
-```js
-sq('book')()('id').insert({ title: 'Squirrels and Acorns' }).query
-
-{ text: 'insert into book(title) values ($1) returning id',
-  args: ['Squirrels and Acorns'] }
+// [
+//   { title: "Forest Gump", rating: 82 },
+//   { title: "Joker", rating: 58 },
+//   { title: "Inception", rating: null }
+// ]
 ```
