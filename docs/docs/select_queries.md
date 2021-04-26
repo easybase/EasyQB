@@ -11,6 +11,7 @@ nav_order: 10
 * **Order By** [`.orderBy`](#order-by)
 * **Limit** [`.limit`](#limit)
 * **Offset** [`.offset`](#offset)
+* **Aggregate** [`.sum`, `.count`, `.avg`, `.max`, `.min`](#aggregate)
 * **Group By** [`.groupBy`](#group-by)
 
 ## Initialize
@@ -191,19 +192,34 @@ await table.return().limit(2).offset(page * 2).all();
 ]
 ```
 
-## Group By
+## Aggregate
 
-`.groupBy` accepts a column name and builds *group by* clauses. You must also provide some aggregator function in `return`, such as **count(*)**, **max(rating)**, or **avg(rating)**.
+The following aggregators can be used in `.return` from the expression object: `.min`, `.max`, `.sum`, `.avg`, and `.count`.
 
 ```js
-await table.return('count(*)').groupBy('title').all()
+await table.return(e.avg('rating')).all()
 
-[ { count: 4 } ]
-
-await table.return('max(rating)').groupBy('rating').all()
-
-[ { max_rating: 83 } ]
+[ { avg_rating: 68 } ]
 ```
+
+Aggregators can be called with either `.one` or `.all`. There is no difference between the two.
+
+```js
+await table.return(e.sum('rating')).one()
+
+[ { sum_rating: 272 } ]
+```
+
+## Group By
+
+`.groupBy` accepts a column name and builds *group by* clauses. You must also provide some aggregator function in `return`. This often has no effect on the resulting aggregation.
+
+```js
+await table.return(e.avg('rating')).groupBy('rating').all()
+
+[ { avg_rating: 68 } ]
+```
+
 
 <!-- 
 ## Having
