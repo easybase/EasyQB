@@ -289,6 +289,13 @@ interface ComparisonOperations<T extends Types> {
     gtAll: T extends 'new' ? GtAll : GtAllChain<T>
     lteAll: T extends 'new' ? LteAll : LteAllChain<T>
     gteAll: T extends 'new' ? GteAll : GteAllChain<T>
+    // date comparison
+    dateEq: T extends 'new' ? Eq : EqChain<T>
+    dateNeq: T extends 'new' ? Neq : NeqChain<T>
+    dateLt: T extends 'new' ? Lt : LtChain<T>
+    dateGt: T extends 'new' ? Gt : GtChain<T>
+    dateLte: T extends 'new' ? Lte : LteChain<T>
+    dateGte: T extends 'new' ? Gte : GteChain<T>
 }
 
 interface Eq {
@@ -674,11 +681,39 @@ interface Abs {
 //
 
 interface StringOperations<T extends StringTypes> {
+    like: T extends 'new' ? Like : LikeChain
+    notLike: T extends 'new' ? NotLike : NotLikeChain
+
     concat: T extends 'new' ? Concat : ConcatChain
     similarTo: T extends 'new' ? SimilarTo : SimilarToChain
     notSimilarTo: T extends 'new' ? NotSimilarTo : NotSimilarToChain
     lower: T extends 'new' ? Lower : StringExpression
     upper: T extends 'new' ? Upper : StringExpression
+}
+
+interface Like {
+    (strings: TemplateStringsArray, ...args: any[]): LikeChain
+    (arg1: StringArgument): LikeChain
+    (arg1: StringArgument, arg2: StringArgument): LikeEscape
+}
+interface LikeChain {
+    (strings: TemplateStringsArray, ...args: any[]): LikeEscape
+    (arg2: StringArgument): LikeEscape
+}
+
+interface LikeEscape extends BooleanExpression {
+    escape(strings: TemplateStringsArray, ...args: any[]): BooleanExpression
+    escape(character: StringArgument): BooleanExpression
+}
+
+interface NotLike {
+    (strings: TemplateStringsArray, ...args: any[]): NotLikeChain
+    (arg1: StringArgument): NotLikeChain
+    (arg1: StringArgument, arg2: StringArgument): LikeEscape
+}
+interface NotLikeChain {
+    (strings: TemplateStringsArray, ...args: any[]): LikeEscape
+    (arg2: StringArgument): LikeEscape
 }
 
 interface Concat {

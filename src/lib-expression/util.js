@@ -1,5 +1,11 @@
 const { buildTaggedTemplate } = require('../lib-util')
 
+const dateToYYYYMMDD = d => [
+    d.getFullYear(),
+    ('0' + (d.getMonth() + 1)).slice(-2),
+    ('0' + d.getDate()).slice(-2)
+].join('-');
+
 const build = (ctx, arg) => {
     // compiled expression string
     if (arg.exp) return arg.exp
@@ -32,6 +38,19 @@ const binary = op => ({
     maxArgs: 2,
     build: (ctx, args) => `(${build(ctx, args[0])} ${op} ${build(ctx, args[1])})`
 })
+
+const dateBinary = op => ({
+    minArgs: 2,
+    maxArgs: 2,
+    build: (ctx, args) => {
+        const inDate = args[1].arg;
+        if (typeof inDate.getMonth === 'function') {
+            args[1].arg = dateToYYYYMMDD(inDate);
+        }
+        return `date(${build(ctx, args[0])}, 'YYYY-MM-DD') ${op} ${build(ctx, args[1])}`
+    }
+})
+
 
 const ternary = (op1, op2) => ({
     minArgs: 3,
@@ -128,5 +147,6 @@ module.exports = {
     oneValue,
     compositeValue,
     membership,
-    quantifiedComparison
+    quantifiedComparison,
+    dateBinary
 }

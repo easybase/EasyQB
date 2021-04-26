@@ -9,7 +9,8 @@ const {
     oneValue,
     compositeValue,
     membership,
-    quantifiedComparison
+    quantifiedComparison,
+    dateBinary
 } = require('./util')
 
 // value
@@ -74,6 +75,16 @@ const comparison = {
     gteAll: quantifiedComparison('>= all')
 }
 
+// dates
+const dateComparison = {
+    dateEq: dateBinary('='),
+    dateNeq: dateBinary('<>'),
+    dateLt: dateBinary('<'),
+    dateGt: dateBinary('>'),
+    dateLte: dateBinary('<='),
+    dateGte: dateBinary('>=')
+}
+
 // math
 const math = {
     add: binary('+'),
@@ -88,14 +99,11 @@ const math = {
     abs: unaryFunction('abs')
 }
 
-// const string = {
-//     like: binary('like'),
-//     notLike: binary('not like'),
-//     likeAny: binary('like any'),
-//     notLikeAny: binary('not like any'),
-//     likeAll: binary('like all'),
-//     notLikeAll: binary('not like all')
-// }
+// string
+const string = {
+    like: binary('like'),
+    notLike: binary('not like')
+}
 
 const array = {
     unnest: naryFunction('unnest')
@@ -106,5 +114,7 @@ module.exports = {
     ...boolean,
     ...comparison,
     ...math,
-    ...array
+    ...array,
+    ...dateComparison,
+    ...string
 }

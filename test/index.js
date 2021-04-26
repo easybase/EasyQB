@@ -20,6 +20,9 @@ const easyqb = (tableName) => {
 const table1 = easyqb();
 const e = table1.e;
 
-table1.return(e.max('hello'), e.avg('hellow')).where(e.eq('app_name', 'asdf')).all()
-table1.return(e.max('Hello Table')).where(e.eq('app_name', 'asdf')).all()
+table1.return().where(e.dateEq('dateCol', new Date()), e.lik).all()
+table1.return().where(e.dateLt('dateCol', new Date())).all()
+table1.return().where(e.dateGte('dateCol', new Date())).all()
+table1.return().where(e.dateNeq('dateCol', new Date())).all()
+// table1.return(e.max('Hello Table')).where(e.eq('app_name', 'asdf')).all()
 // table1.insert({ "hello world": "123" }).one();
