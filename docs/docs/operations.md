@@ -7,15 +7,14 @@ title: Operations
 
 * **Boolean** [`and`](#and) [`or`](#or) [`not`](#not)
 * **Comparison** [`eq`](#equal) [`neq`](#not-equal) [`lt`](#less-than) [`gt`](#greater-than) [`lte`](#less-than-or-equal) [`gte`](#greater-than-or-equal) [`between`](#between) [`notBetween`](#not-between) [`isNull`](#is-null) [`isNotNull`](#is-not-null) [`in`](#in) [`notIn`](#not-in)
-<!-- * **Date and Time** [`age`](#age) [`now`](#now) [`extract`](#extract) -->
+* **String** [`like`](#like) [`notLike`](#not-like)
+* **Date and Time** [`dateEq`](#date-equal) [`dateNeq`](#date-not-equal) [`dateLt`](#date-less-than) [`dateGt`](#date-greater-than) [`dateLte`](#date-less-than-or-equal) [`dateGte`](#date-greater-than-or-equal)
 * **Aggregate** [`count`](#count) [`sum`](#sum) [`avg`](#average) [`min`](#min) [`max`](#max)
 
 
 ## Boolean
 
 ### And
-
-* `and: boolean => ...boolean => boolean`
 
 `.and` performs logical conjunction on its arguments.
 
@@ -48,8 +47,6 @@ e.and(true, false, true, false)
 
 ### Or
 
-* `or: boolean => ...boolean => boolean`
-
 `.or` performs logical disjunction on its arguments.
 
 ```js
@@ -81,8 +78,6 @@ e.or(true, false, true, false)
 
 ### Not
 
-* `not: boolean => boolean`
-
 `.not` performs logical negation on its argument.
 
 ```js
@@ -97,8 +92,6 @@ e.not(true)
 
 ### Equal
 
-* `eq: T => T => boolean`
-
 `.eq` returns whether its arguments are equal.
 
 ```js
@@ -109,8 +102,6 @@ e.eq('moo', 'moo')
 ```
 
 ### Not Equal
-
-* `neq: T => T => boolean`
 
 `.neq` returns whether its arguments are *not* equal.
 
@@ -123,8 +114,6 @@ e.neq('moo', 'moo')
 
 ### Less Than
 
-* `lt: T => T => boolean`
-
 `.lt` returns whether its first argument is less than its second argument.
 
 ```js
@@ -135,8 +124,6 @@ e.lt('moo', 'moo')
 ```
 
 ### Greater Than
-
-* `gt: T => T => boolean`
 
 `.gt` returns whether its first argument is greater than its second argument.
 
@@ -149,8 +136,6 @@ e.gt('moo', 'moo')
 
 ### Less Than or Equal
 
-* `lte: T => T => boolean`
-
 `.lte` returns whether its first argument is less than or equal to its second argument.
 
 ```js
@@ -161,8 +146,6 @@ e.lte('moo', 'moo')
 ```
 
 ### Greater Than or Equal
-
-* `gte: T => T => boolean`
 
 `.gte` returns whether its first argument is greater than or equal to its second argument.
 
@@ -175,8 +158,6 @@ e.gte('moo', 'moo')
 
 ### Between
 
-* `between: T => T => T => boolean`
-
 `.between` returns whether its first argument is between its second and third arguments.
 
 ```js
@@ -188,8 +169,6 @@ e.between(5, 3, 9)
 
 ### Not Between
 
-* `notBetween: T => T => T => boolean`
-
 `.notBetween` returns whether its first argument is *not* between its second and third arguments.
 
 ```js
@@ -200,8 +179,6 @@ e.notBetween(5, 3, 9)
 ```
 
 ### Is Null
-
-* `isNull: T => boolean`
 
 `.isNull` returns whether its argument is null.
 
@@ -221,8 +198,6 @@ e.isNull(null)
 
 ### Is Not Null
 
-* `isNotNull: T => boolean`
-
 `.isNull` returns whether its argument is *not* null.
 
 Expression | Result
@@ -239,9 +214,6 @@ e.isNotNull(null)
 ```
 
 ### In
-
-* `in: T => T[] => boolean`
-* `in: T => table => boolean`
 
 `.in` returns whether a value is in a *Values List*.
 
@@ -268,9 +240,6 @@ e.eqAny(4, [3, 4, 5])
 
 ### Not In
 
-* `notIn: => T => table => boolean`
-* `notIn: => T => T[] => boolean`
-
 `.notIn` returns whether a value is *not* in a *Values List*.
 
 ```js
@@ -294,19 +263,106 @@ e.neqAll(4, [3, 4, 5])
   args: [4, [3, 4, 5]] }
 ```
 
-<!-- ## Date and Time
+## String
 
-### Age
+### Like
 
-TODO
+`.like` operators allows for matching string patterns in a `.where` clause.
 
-### Now
+The percent sign (%) represents zero, one, or multiple characters and the underscore sign (_) represents one, single character.
 
-TODO
+```js
+await table.return().where(e.like('title', 'T%')).all()
 
-### Extract
+[
+  { "title": "Titanic", "rating": 75 },
+  { "title": "The Lion King", "rating": 55 }
+]
+```
 
-TODO -->
+### Not Like
+
+`.notLike` operators allows for matching inverse string patterns in a `.where` clause.
+
+```js
+await table.return().where(e.notLike('title', 'T%')).all()
+
+[
+  { "title": "Avatar", "rating": 83 },
+  { "title": "Jurassic World", "rating": 59 }
+]
+```
+
+## Date
+
+### Date Equal
+
+`.dateEq` returns whether its arguments are equal in a date column.
+
+**The value must either be Date object or a string in the form 'YYYY-MM-DD'.**
+
+```js
+e.dateEq('dateCol', new Date())
+
+{ text: '$1 = $2',
+  args: ['dateCol', '2021-04-26'] }
+```
+
+### Date Not Equal
+
+`.dateNeq` returns whether its arguments are *not* equal in a date column.
+
+```js
+e.dateNeq('dateCol', '2020-01-20')
+
+{ text: '$1 <> $2',
+  args: ['dateCol', '2020-01-20'] }
+```
+
+### Date Less Than
+
+`.dateLt` returns whether its first argument is less than its second argument in a date column.
+
+```js
+e.dateLt('dateCol', '2020-01-20')
+
+{ text: '$1 < $2',
+  args: ['dateCol', '2020-01-20'] }
+```
+
+### Date Greater Than
+
+`.dateGt` returns whether its first argument is greater than its second argument in a date column.
+
+```js
+e.dateGt('dateCol', new Date())
+
+{ text: '$1 > $2',
+  args: ['dateCol', '2021-04-26'] }
+```
+
+### Date Less Than or Equal
+
+`.dateLte` returns whether its first argument is less than or equal to its second argument in a date column.
+
+```js
+e.dateLte('dateCol', '2020-01-20')
+
+{ text: '$1 <= $2',
+  args: ['dateCol', '2020-01-20'] }
+```
+
+### Date Greater Than or Equal
+
+`.dateGte` returns whether its first argument is greater than or equal to its second argument in a date column.
+
+```js
+e.dateGte('dateCol', '2020-01-20')
+
+{ text: '$1 >= $2',
+  args: ['dateCol', '2020-01-20'] }
+```
+
 
 ## Aggregate
 

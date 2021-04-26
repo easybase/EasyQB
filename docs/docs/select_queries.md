@@ -67,10 +67,11 @@ await table.return("title").one();
 
 ## Where
 
-`.where` builds *where* clauses. Expressions, `e`, are are used to create comparisons and boolean logic. [Learn more about expressions](docs/expressions.html).
+`.where` builds *where* clauses. Expressions, `e`, are are used to create comparisons and boolean logic. **[Learn more about expressions and operations](/docs/operations.html)**.
 
 ```js
-await table.return().where(e.eq("title", "The Lion King")).one()
+const { e } = table;
+await table.return().where(e.eq("title", "The Lion King")).one() // Equals
 
 { "title": "The Lion King", "rating": 55 }
 ```
@@ -87,7 +88,7 @@ await table.return().where({ title: "The Lion King", rating: 55 }).all()
 ]
 ```
 
-Use [Expressions](expressions) to build complex conditions with [`e.and`](operations#and), [`e.or`](operations#or) and [`e.not`](operations#not).
+Use [Operations](/docs/operations.html) to build complex conditions with [`e.and`](operations#and), [`e.or`](operations#or) and [`e.not`](operations#not).
 
 ```js
 await table.return().where(
@@ -118,7 +119,7 @@ await table.return().where({ rating: [55, 56, 57, 58, 59] }).all()
 
 Specify row ordering with `.orderBy`. This function accepts objects.
 
-Property `by` is used for ordering. It can be a string, [Expression](expressions), [Fragment](manual-queries#fragments) or [Subqueries](manual-queries#subqueries). Set property `sort` to either `'asc'` or `'desc'`.
+The property `by` is used for ordering. Set property `sort` to either `'asc'` or `'desc'`.
 
 ```js
 await table().return().orderBy({ by: "rating", sort: "asc" }).all()
@@ -194,7 +195,7 @@ await table.return().limit(2).offset(page * 2).all();
 
 ## Aggregate
 
-The following aggregators can be used in `.return` from the expression object: `.min`, `.max`, `.sum`, `.avg`, and `.count`.
+The following aggregators can be used in `.return` from the expression object: [`.min`](/docs/operations.html#min), [`.max`](/docs/operations.html#max), [`.sum`](/docs/operations.html#sum), [`.avg`](/docs/operations.html#avg), and [`.count`](/docs/operations.html#count).
 
 ```js
 await table.return(e.avg('rating')).all()

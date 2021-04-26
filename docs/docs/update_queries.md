@@ -7,7 +7,7 @@ nav_order: 13
 ## Overview
 
 * **Set** [`.set`](#set)
-* **Where** [`.where`](#where-1)
+* **Where** [`.where`](#where)
 
 ## Set
 
@@ -48,4 +48,4 @@ await table
   args: ['Robert', 'Rob', 'Matt'] }
 ```
 
-`.where` works it does in [Select](select-queries) queries.
+Note that `.where` works in update queries just as it does in [select](/docs/select_queries.html#where) queries.

@@ -53,4 +53,4 @@ await table.delete().where(
 // ]
 ```
 
-Note: `.where` works in delete queries just it does in [Select](select-queries) queries.
+Note that `.where` works in delete queries just it does in [select](/docs/select_queries.html#where) queries.
