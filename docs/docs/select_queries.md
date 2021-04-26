@@ -202,7 +202,16 @@ await table.return(e.avg('rating')).all()
 [ { avg_rating: 68 } ]
 ```
 
-Aggregators can be called with either `.one` or `.all`. There is no difference between the two.
+Aggregators are powerful when combined be used with a `.where` clause.
+
+```js
+await table.return(e.count('rating')).where(e.gt('rating', 70)).all()
+
+{ count: 2 }
+```
+
+
+Can be called with either `.one` or `.all`. There is no difference between the two.
 
 ```js
 await table.return(e.sum('rating')).one()
