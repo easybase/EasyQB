@@ -23,4 +23,4 @@ interface Values extends M.OrderBy, M.Limit, M.Offset { }
 
 interface Helper extends M.End, M.TransactionMethods, M.GroupHelpers { }
 
-interface Execute extends M.Buildable, M.Execute { }
+interface Execute extends M.Execute { }

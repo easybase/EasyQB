@@ -20,7 +20,7 @@ const easyqb = (tableName) => {
 const table1 = easyqb();
 const e = table1.e;
 
-table1.return().where(e.dateEq('dateCol', new Date()), e.lik).all()
+table1.return().where(e.dateEq('dateCol', new Date())).all()
 table1.return().where(e.dateLt('dateCol', new Date())).all()
 table1.return().where(e.dateGte('dateCol', new Date())).all()
 table1.return().where(e.dateNeq('dateCol', new Date())).all()
