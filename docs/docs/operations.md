@@ -9,7 +9,7 @@ title: Operations
 * **Comparison** [`eq`](#equal) [`neq`](#not-equal) [`lt`](#less-than) [`gt`](#greater-than) [`lte`](#less-than-or-equal) [`gte`](#greater-than-or-equal) [`between`](#between) [`notBetween`](#not-between) [`isNull`](#is-null) [`isNotNull`](#is-not-null) [`in`](#in) [`notIn`](#not-in)
 * **String** [`like`](#like) [`notLike`](#not-like)
 * **Date and Time** [`dateEq`](#date-equal) [`dateNeq`](#date-not-equal) [`dateLt`](#date-less-than) [`dateGt`](#date-greater-than) [`dateLte`](#date-less-than-or-equal) [`dateGte`](#date-greater-than-or-equal)
-* **Aggregate** [`count`](#count) [`sum`](#sum) [`avg`](#average) [`min`](#min) [`max`](#max)
+* **Aggregate** [`count`](#count) [`sum`](#sum) [`avg`](#average) [`min`](#minimum) [`max`](#maximum)
 
 
 ## Boolean
@@ -423,7 +423,7 @@ await table.return(e.avg('rating')).where(e.gt('rating', 70)).one()
 ```
 
 
-### Min
+### Minimum
 
 `.min` in a `.return` field returns the minimum value of that column.
 
@@ -441,7 +441,7 @@ await table.return(e.min('rating')).where(e.gt('rating', 70)).one()
 { min_rating: 75 }
 ```
 
-### Max
+### Maximum
 
 `.max` in a `.return` field returns the maximum value of that column.
 

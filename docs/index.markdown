@@ -11,7 +11,7 @@ nav_order: 9
 
 <br />
 
-Query Builder used in Easybase's JavaScript-based packages for [serverless frontend applications](https://easybase.io/about/2021/01/30/What-Is-a-Serverless-Application/). This project is based on Sqorn using functional expressions and conditionals. **If you're just starting out, [head to the Select page to begin](/docs/select_queries.html).**
+Query Builder used in Easybase's JavaScript-based packages for [serverless frontend applications](https://easybase.io/about/2021/01/30/What-Is-a-Serverless-Application/). This project is based on Sqorn using functional expressions and conditionals. **If you're just starting out, [head to the Select page to begin](docs/select_queries.html).**
 
 EasyQB is built into both [_easybase-react_](https://github.com/easybase/easybase-react) and [_easybasejs_](https://github.com/easybase/easybasejs), through the exported `db` function. This function allows developers to logically create Easybase CRUD operations in code. It will become the standard query functionality for Easybase, replacing `Frame`.
 

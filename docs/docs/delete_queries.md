@@ -11,7 +11,7 @@ nav_order: 12
 
 ## Delete
 
-Delete queries look like [Select](/docs/select_queries.html) queries with an additional call to `.delete`. **This will return the number of rows deleted.**
+Delete queries look like [Select](select_queries.html) queries with an additional call to `.delete`. **This will return the number of rows deleted.**
 
 
 ```js
@@ -53,4 +53,4 @@ await table.delete().where(
 // ]
 ```
 
-Note that `.where` works in delete queries just it does in [select](/docs/select_queries.html#where) queries.
+Note that `.where` works in delete queries just it does in [select](select_queries.html#where) queries.

@@ -48,4 +48,4 @@ await table
   args: ['Robert', 'Rob', 'Matt'] }
 ```
 
-Note that `.where` works in update queries just as it does in [select](/docs/select_queries.html#where) queries.
+Note that `.where` works in update queries just as it does in [select](select_queries.html#where) queries.

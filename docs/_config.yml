@@ -30,6 +30,7 @@
 # Build settings
 remote_theme: pmarsceill/just-the-docs
 logo: "/assets/images/banner-logo.png"
+baseurl: /EasyQB
 
 # Exclude from processing.
 # The following items will not be processed, by default.

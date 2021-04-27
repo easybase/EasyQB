@@ -67,7 +67,7 @@ await table.return("title").one();
 
 ## Where
 
-`.where` builds *where* clauses. Expressions, `e`, are are used to create comparisons and boolean logic. **[Learn more about expressions and operations](/docs/operations.html)**.
+`.where` builds *where* clauses. Expressions, `e`, are are used to create comparisons and boolean logic. **[Learn more about expressions and operations](operations.html)**.
 
 ```js
 const { e } = table;
@@ -88,7 +88,7 @@ await table.return().where({ title: "The Lion King", rating: 55 }).all()
 ]
 ```
 
-Use [Operations](/docs/operations.html) to build complex conditions with [`e.and`](operations#and), [`e.or`](operations#or) and [`e.not`](operations#not).
+Use [Operations](operations.html) to build complex conditions with [`e.and`](operations#and), [`e.or`](operations#or) and [`e.not`](operations#not).
 
 ```js
 await table.return().where(
@@ -195,7 +195,7 @@ await table.return().limit(2).offset(page * 2).all();
 
 ## Aggregate
 
-The following aggregators can be used in `.return` from the expression object: [`.min`](/docs/operations.html#min), [`.max`](/docs/operations.html#max), [`.sum`](/docs/operations.html#sum), [`.avg`](/docs/operations.html#avg), and [`.count`](/docs/operations.html#count).
+The following aggregators can be used in `.return` from the expression object: [`.min`](operations.html#minimum), [`.max`](operations.html#maximum), [`.sum`](operations.html#sum), [`.avg`](operations.html#average), and [`.count`](operations.html#count).
 
 ```js
 await table.return(e.avg('rating')).all()
