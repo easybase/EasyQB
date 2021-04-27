@@ -60,3 +60,5 @@ footer_content: "Copyright &copy; 2018-2021 Easybase"
 gh_edit_link: false
 # color_scheme: dark
 
+ga_tracking: UA-180320774-1
+ga_tracking_anonymize_ip: false
