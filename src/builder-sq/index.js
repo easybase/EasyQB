@@ -16,13 +16,13 @@ const createQueryBuilder = ({ defaultContext, query, e, config }) => {
     const executeProperties = {
         one: {
             value: async function () {
-                const ret = await config.oneCallback(this.query, config.tableName)
+                const ret = await config.oneCallback(this.query, config.tableName, config.userAssociatedRecordsOnly)
                 return ret;
             }
         },
         all: {
             value: async function () {
-                const ret = await config.allCallback(this.query, config.tableName)
+                const ret = await config.allCallback(this.query, config.tableName, config.userAssociatedRecordsOnly)
                 return ret;
             }
         }
