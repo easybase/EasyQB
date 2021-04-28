@@ -38,6 +38,8 @@ console.log(records);
 
 To use this library you must first create and account an account at [easybase.io](https://easybase.io/), then [configure your project](https://easybase.io/react/#setup).
 
+Advanced usage and options available in [configuration](docs/configuration.html).
+
 <hr />
 
 ### Built With

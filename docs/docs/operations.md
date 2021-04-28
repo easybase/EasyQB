@@ -1,6 +1,7 @@
 ---
 id: operations
 title: Operations
+nav_order: 14
 ---
 
 ## Overview
@@ -8,7 +9,7 @@ title: Operations
 * **Boolean** [`and`](#and) [`or`](#or) [`not`](#not)
 * **Comparison** [`eq`](#equal) [`neq`](#not-equal) [`lt`](#less-than) [`gt`](#greater-than) [`lte`](#less-than-or-equal) [`gte`](#greater-than-or-equal) [`between`](#between) [`notBetween`](#not-between) [`isNull`](#is-null) [`isNotNull`](#is-not-null) [`in`](#in) [`notIn`](#not-in)
 * **String** [`like`](#like) [`notLike`](#not-like)
-* **Date and Time** [`dateEq`](#date-equal) [`dateNeq`](#date-not-equal) [`dateLt`](#date-less-than) [`dateGt`](#date-greater-than) [`dateLte`](#date-less-than-or-equal) [`dateGte`](#date-greater-than-or-equal)
+* **Dates** [`dateLt`](#date-less-than) [`dateGt`](#date-greater-than) [`dateLte`](#date-less-than-or-equal) [`dateGte`](#date-greater-than-or-equal)
 * **Aggregate** [`count`](#count) [`sum`](#sum) [`avg`](#average) [`min`](#minimum) [`max`](#maximum)
 
 
@@ -293,31 +294,9 @@ await table.return().where(e.notLike('title', 'T%')).all()
 ]
 ```
 
-## Date
-
-### Date Equal
-
-`.dateEq` returns whether its arguments are equal in a date column.
+## Dates
 
 **The value must either be Date object or a string in the form 'YYYY-MM-DD'.**
-
-```js
-e.dateEq('dateCol', new Date())
-
-{ text: '$1 = $2',
-  args: ['dateCol', '2021-04-26'] }
-```
-
-### Date Not Equal
-
-`.dateNeq` returns whether its arguments are *not* equal in a date column.
-
-```js
-e.dateNeq('dateCol', '2020-01-20')
-
-{ text: '$1 <> $2',
-  args: ['dateCol', '2020-01-20'] }
-```
 
 ### Date Less Than
 
