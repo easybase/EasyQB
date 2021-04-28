@@ -77,8 +77,8 @@ const comparison = {
 
 // dates
 const dateComparison = {
-    dateEq: dateBinary('='),
-    dateNeq: dateBinary('<>'),
+    // dateEq: dateBinary('='),
+    // dateNeq: dateBinary('<>'),
     dateLt: dateBinary('<'),
     dateGt: dateBinary('>'),
     dateLte: dateBinary('<='),

@@ -290,8 +290,8 @@ interface ComparisonOperations<T extends Types> {
     lteAll: T extends 'new' ? LteAll : LteAllChain<T>
     gteAll: T extends 'new' ? GteAll : GteAllChain<T>
     // date comparison
-    dateEq: T extends 'new' ? Eq : EqChain<T>
-    dateNeq: T extends 'new' ? Neq : NeqChain<T>
+    // dateEq: T extends 'new' ? Eq : EqChain<T>
+    // dateNeq: T extends 'new' ? Neq : NeqChain<T>
     dateLt: T extends 'new' ? Lt : LtChain<T>
     dateGt: T extends 'new' ? Gt : GtChain<T>
     dateLte: T extends 'new' ? Lte : LteChain<T>
