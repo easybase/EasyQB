@@ -6,11 +6,6 @@ type Row = { [column: string]: any }
 type Conditions = (SQ | { [field: string]: SQ | any })[]
 type Simplify<T> = { [key in keyof T]: T[key] };
 
-interface StatusResponse {
-   success: boolean;
-   body?: any;
-}
-
 export interface With {
    /**
     * **WITH clause** - table arguments
@@ -74,38 +69,36 @@ export interface With {
 
 interface Execute extends Promise<Row[]> {
    /**
-    * Executes the query and returns a Promise for an array of rows
+    * In a Select query, executes the query and returns a Promise for an array of rows.
     * 
-    * To execute the query in the context of a transaction, pass
-    * the transaction object `trx` as an argument.
+    * Insert, Delete, and Update queries return a Promise for an array of numbers rather than a Record<string, any>[].
     * 
     * @example
- ```js
- const children = await sq`person`.all()
- // .all() is optional
- const children = await sq`person`
- // unless the query is part of a transaction
- const trx = await sq.transaction()
- await sq`person`.insert({ name: 'Jo' }).all(trx)
- ```
+    * ```js
+    * const table = Easybase.EasybaseProvider({ ebconfig }).db("MYTABLE");
+    * const { e } = table; // Optional query expressions
+    * 
+    * await table.return().where(e.eq("title", "The Lion King")).all();
+    * ```
     */
-   all(trx?: Transaction): Promise<Record<string, any>[] | StatusResponse>
+   all(trx?: Transaction): Promise<Record<string, any>[] | number[]>
 
    /**
-    * Executes the query and returns a Promise for the first row
+    * In a Select query, executes the query and returns a Promise for the first row.
     * 
     * If no row is returned, the Promise resolves to `undefined`.
     * 
-    * Execute the query within a transaction by passing the transaction object `trx`.
+    * Insert, Delete, and Update queries return a Promise for a number rather than a Record<string, any>.
     * 
     * @example
-    * const bob = await sq`person`.where`name = 'Bob'`.return`id`.one()
-    * if (bob) console.log(bob.id)
+    * ```js
+    * const table = Easybase.EasybaseProvider({ ebconfig }).db("MYTABLE");
+    * const { e } = table; // Optional query expressions
     * 
-    * const trx = await sq.transaction()
-    * await sq`person`.insert({ name: 'Jo' }).one(trx)
+    * await table.return().where(e.eq("title", "The Lion King")).one();
+    * ```
     */
-   one(trx?: Transaction): Promise<Record<string, any> | StatusResponse>
+   one(trx?: Transaction): Promise<Record<string, any> | number>
 }
 
 
@@ -168,7 +161,7 @@ interface ExpressFrom {
 
 export interface Return {
    /**
-    * **SELECT or RETURNING clause** - field arguments
+    * **SELECT or RETURNING clause** - https://easybase.github.io/EasyQB/docs/select_queries.html#select
     *
     * Pass `.return` the fields the query should return.
     * 
@@ -181,32 +174,12 @@ export interface Return {
     * 
     * An expression may be a string or subquery.
     * 
-    * **To prevent SQL injection, never source string fields from user input**
     *
     * @example
- ```js
- sq.return('user.name', 'user.id', '33', sq.txt('33'), 27, true)
- // select user.name, user.id, 33, $1, $2, $3
- 
- sq.from('person').set`age = age + 1`.return('id', 'age')
- // update person set age = age + 1 returning id, age
- 
- sq.delete.from('person').return('id', 'age')
- // delete from person returning id, age
- 
- sq.from('person').insert({ age: 12 }).return('id', 'age')
- // insert into person (age) values (12) returning id, age
- 
- const userInput = '; drop table user;'
- sq.from('book').return(sq.txt(userInput), 23).return(true)
- // select $1, $2, $3 from book
- 
- sq.return({
-   now: sq.txt`now()`,
-   tomorrow: sq.return`now() + '1 day'`
- })
- // select now() as today, (select now() + '1 day') as tomorrow
- ```
+    * ```
+    * db('MY-TABLE').return().one() // all columns
+    * db('MY-TABLE').return('title', 'rating').one()
+    * ```
     */
    return(...fields: (Expression | any | { [alias: string]: Expression | any })[]): this
 }
@@ -228,24 +201,6 @@ export interface ExpressReturn {
     * 
     * **To prevent SQL injection, never source string fields from user input**
     *
-    * @example
- ```js
- sq('person')({ id: 7 })('name')
- // select name from person where id = $1
- 
- sq('person')()('id', 'age').set`age = age + 1`
- // update person set age = age + 1 returning id, age
- 
- sq.delete('person')({ name: 'Jo' })('id', 'age')
- // delete from person where name = $1 returning id, age
- 
- sq('person')().insert({ age: 12 })('id', 'age')
- // insert into person (age) values (12) returning id, age
- 
- const userInput = '; drop table user;'
- sq('book')()(sq.txt(userInput), 23)
- // select $1, $2 from book
- ```
     */
    (...fields: (Expression | any | { [alias: string]: Expression | any })[]): SQ
 }
@@ -269,28 +224,17 @@ export interface Where {
     * Multiple calls to `.where` are joined with _" and "_.
     *
     * @example
- ```js
- sq.from('person').where({ id: 7 })
- // select * form person where (id = $1)
- 
- sq.from('person').where(sq.txt`age >= ${18}`).set({ adult: true })
- // update person set adult = $1 where (age >= ${2})
- 
- sq.delete.from('person').where({ age: 20, id: 5 }, { age: 30 })
- // delete from person where (age = $1 and id = $1 or age = $2)
- 
- sq.from('person').where(sq.txt`name = ${'Jo'}`, { age: 17 })
- // select * from person where (name = $1 or age = $2)
- 
- sq.from('person').where({ minAge: sq.txt`age < ${17}` })
- // select * from person where (age = $1)
- 
- sq.from('person').where({ age: 7, gender: 'male' })
- // select * from person where (age = $1 and gender = $2)
- 
- sq.from('person').where({ age: 7 }).where({ name: 'Joe' })
- // select * from person where (age = $1) and name = $2
- ```
+    * ```js
+    * await table.return().where({ title: "The Lion King", rating: 55 }).all()
+    * await table.return().where(
+    *    e.or(
+    *       e.eq("title", "The Lion King"), // Equals
+    *       e.gt("rating", 80) // Greater than
+    *    )
+    * ).all()
+    * await table.return().where({ rating: [55, 56, 57, 58, 59] }).all()
+    * ```
+    * 
     */
    where(...conditions: Conditions): this
 }
@@ -344,50 +288,38 @@ interface Logic extends And, Or { }
 
 export interface And {
    /**
-    * **AND condition** - query filters
+    * **AND condition** - https://easybase.github.io/EasyQB/docs/operations.html#and
     * 
     * Condition to chain after `.where`, `.on`, or `.having`.
     * 
     * @example
- ```js
- sq.from('person').where({ age: 20 }).and({ name: 'Jo' })
- // select * from person where (age > $1) and (name = $2)
- sq.from('book').leftJoin('author')
-   .on({ 'book.author_id': sq.raw('author.id') })
-   .and({ 'author.status': 'active' })
- // select * from book left join author
- // on (book.author_id = author.id) and (author.status = $1)
- sq.from('book').return('genre', 'avg(book.rating) as r')
-   .groupBy('genre').having(sq.txt`r > 7`).and(sq.txt`r <= 10`)
- // select genre, avg(book.rating) as r from book
- // group by genre having (r > 7) and (r <= 10)
- ```
+    * ```js
+    * await table.return().where(
+    *    e.and(
+    *       e.eq("title", "The Lion King"), // Equals
+    *       e.gt("rating", 80) // Greater than
+    *    )
+    * ).all()
+    * ```
     */
    and(...conditions: Conditions): this
 }
 
 interface Or {
    /**
-    * **OR condition** - query filters
+    * **OR condition** - https://easybase.github.io/EasyQB/docs/operations.html#or
     * 
     * Condition to chain after `.where`, `.on`, or `.having`.
     * 
     * @example
- ```js
- sq.from('person').where(sq.txt`age < 20`).or(sq.txt`age > 30`)
- // select * from person where (age < 20) or (age > 30)
- 
- sq.from('book').leftJoin('author')
-   .on({ 'book.author_id': sq.raw('author.id') })
-   .or({ 'book.editor_id': sq.raw('author.id') })
- // select * from book left join author
- // on (book.author_id = author.id) or (book.editor_id = author.id)
- 
- sq.from('book').return('genre', 'avg(book.rating) as r')
-   .groupBy('genre').having(sq.txt`r < 2`).or(sq.txt`r > 8`)
- // select genre, avg(book.rating) as r from book
- // group by genre having (r < 2) or (r > 8)
- ```
+    * ```js
+    * await table.return().where(
+    *    e.or(
+    *       e.eq("title", "The Lion King"), // Equals
+    *       e.gt("rating", 80) // Greater than
+    *    )
+    * ).all()
+    * ```
     */
    or(...conditions: Conditions): this
 }
@@ -532,58 +464,19 @@ sq.from`t`.groupBy(
 
 export interface GroupBy {
    /**
-    * **GROUP BY clause** - group items
-    * 
-    * A grout item may be:
-    * 
-    * * An expression
-    * * An array of expressions
-    * * A call to `sq.rollup`
-    * * A call to `sq.cube`
-    * * A call to `sq.groupingSets`
-    * 
+    * **GROUP BY clause** - https://easybase.github.io/EasyQB/docs/select_queries.html#group-by
+    * `.groupBy` accepts a column name and builds *group by* clauses. You may also provide some aggregator function in `return`. This often has no effect on the resulting aggregation.
     * An expression may be a string or subquery.
     *
+    * The following aggregators can be used in `.return` from the expression object: `.min`, `.max`, `.sum`, `.avg`, and `.count`.
     * Multiple `.groupBy` calls are joined with ', '.
     * 
     * @example
- ```js
- sq.from('book').return('genre', 'count(*)').groupBy('genre')
- // select genre, count(*) from book group by genre
- 
- sq.from('book').return('genre', 'year').groupBy('genre', 'year')
- // select genre, year from book group by genre, year
- 
- sq.from('book').return('genre', 'year').groupBy('genre').groupBy('year')
- // select genre, year from book group by genre, year
- 
- sq.from('book').return('genre', 'year').groupBy(['genre', 'year'])
- // select genre, year from book group by (genre, year)
- 
- sq.from`t`.groupBy(sq.rollup('a', ['b', sq.txt`c`], 'd'))
- // select * from t group by rollup (a, (b, c)), d
- 
- sq.from`t`.groupBy(sq.cube('a', ['b', sq.txt`c`], 'd'))
- // select * from t group by cube (a, (b, c)), d
- 
- sq.from`t`.groupBy(
-   sq.groupingSets(
-     ['a', 'b', 'c'],
-     sq.groupingSets(['a', 'b']),
-     ['a'],
-     [],
-     sq.cube('a', 'b')
-   )
- )
- // select * from t
- // group by grouping sets (
- //   (a, b, c),
- //   grouping sets ((a, b)),
- //   (a),
- //   (),
- //   cube (a, b)
- // )
- ```
+    * ```js
+    * await table.return(e.avg('rating')).groupBy('rating').all()
+    * 
+    * [ { avg_rating: 68 } ]
+    * ```
     */
    groupBy(...args: GroupItems): this
 }
@@ -599,43 +492,31 @@ export interface Having {
     *   * or checked for equality against its key
     * 
     * @example
- ```js
- sq.from('book').return('genre')
-   .groupBy('genre').having(sq.txt`count(*) > 10`)
- // select genre from book group by genre having count(*) > 10
- ```
     */
    having(...conditions: Conditions): this
 }
 
 export interface OrderBy {
    /**
-    * **ORDER BY clause** - order by items
+    * **ORDER BY clause** - https://easybase.github.io/EasyQB/docs/select_queries.html#order-by
     * 
-    * An order item may be:
-    * * an expression
-    * * an object with properties:
-    *   * `by` - the expression to sort by
-    *   * `sort` - `'asc'` or `'desc'`
-    *   * `nulls` - `'first'` or `'last'`
-    *   * `using` - a sort operator
+    * Specify row ordering with `.orderBy`. This function accepts objects.
+    * 
+    * The property `by` is used for ordering. Set property `sort` to either `'asc'` or `'desc'`.
     * 
     * Multiple `.orderBy` calls are joined with ', '.
     * 
     * @example
- ```js
- sq.from('book').orderBy('title desc', sq.txt`sales / ${1000}`)
- // select * from book order by title desc, sales / 1000
- 
- sq.from('book').orderBy(
-   { by: 'title', sort: 'desc' },
-   { by: sq.txt`sales / ${1000}` }
- )
- // select * from book order by title desc, sales / 1000
- 
- sq.from('book').orderBy({ by: 'title', using: '~<~', nulls: 'last' })
- // select * from book order by title using ~<~ nulls last
- ```
+    * ```js
+    * await table().return().orderBy({ by: "rating", sort: "asc" }).all()
+    * 
+    * [
+    *    { "title": "The Lion King", "rating": 55 },
+    *    { "title": "Jurassic World", "rating": 59 },
+    *    { "title": "Titanic", "rating": 75 },
+    *    { "title": "Avatar", "rating": 83 }
+    * ]
+    *```
     */
    orderBy(...orderItems: (Expression | {
       by: Expression
@@ -648,26 +529,21 @@ export interface OrderBy {
 
 export interface Limit {
    /**
-    * **LIMIT clause** - limit
+    * **LIMIT clause** - https://easybase.github.io/EasyQB/docs/select_queries.html#limit
     *
     * Specify the maximum number of results to return
     * 
     * Only the last call to `.limit` is used.
     * 
     * @example
- ```js
- sq.from`person`.limit(8)
- // select * from person limit 8
- 
- sq.from`person`.limit(7).limit(5)
- // select * from person limit 5
- 
- sq.from`person`.limit(sq.txt`1 + 7`)
- // select * from person limit 1 + 7
- 
- sq.from`person`.limit(sq.return(10))
- // select * from person limit (select 10)
- ```
+    * ```js
+    * await table.return().limit(2).all()
+    * 
+    * [
+    *    { "title": "Avatar", "rating": 83 },
+    *    { "title": "Titanic", "rating": 75 }
+    * ]
+    * ```
     */
    limit(limit: number): this
 }
@@ -675,26 +551,22 @@ export interface Limit {
 
 export interface Offset {
    /**
-    * **OFFSET clause** - template string
+    * **OFFSET clause** - https://easybase.github.io/EasyQB/docs/select_queries.html#offset
     *
     * Specify the number of results to skip before returning
     * 
     * Only the last call to `.offset` is used.
     * 
     * @example
- ```js
- sq.from`person`.limit(8)
- // select * from person limit 8
- 
- sq.from`person`.limit(7).limit(5)
- // select * from person limit 5
- 
- sq.from`person`.limit(sq.txt`1 + 7`)
- // select * from person limit 1 + 7
- 
- sq.from`person`.limit(sq.return(10))
- // select * from person limit (select 10)
- ```
+    * ```js
+    * await table.return().offset(1).all()
+    * 
+    * [
+    *    { "title": "Titanic", "rating": 75 },
+    *    { "title": "The Lion King", "rating": 55 },
+    *    { "title": "Jurassic World", "rating": 59 }
+    * ]
+    * ```
     */
    offset(offset: number): this
 }
@@ -1020,7 +892,7 @@ interface SetOperators {
 
 export interface Insert {
    /**
-    * **INSERT caluse** - value objects
+    * **INSERT clause** - https://easybase.github.io/EasyQB/docs/insert_queries.html
     * 
     * Specifies the data to insert as objects.
     * 
@@ -1030,112 +902,97 @@ export interface Insert {
     * 
     * Only the last call to `.insert` is used.
     * 
+    * Executing an Insert query returns a Promise for a number or an array of numbers, for `.one` or `.all`, respectively.
+    * 
     * @example
- ```js
- sq.from('person').insert({ name: 'Jo' })
- // insert into person(name) values ('Jo')
- 
- sq.from('person').insert({ firstName: 'Jo', age: 17 })
- // insert into person(first_name, age) values ('Jo', 17)
- 
- sq.from('person')
-   .insert({ name: 'Jo', age: 17 }, { name: 'Mo', age: 18 })
- // insert into person(name, age) values ('Jo', 17), ('Mo', 18)
- 
- sq.from('person')
-   .insert({ name: 'Jo', age: 17 }, { id: 23, age: 18 })
- // insert into person(name, age, id) values ('Jo', 17, default), (default, 18, 23)
- 
- sq.from('person').insert({
-   firstName: sq.return`${'Shallan'}`,
-   lastName: sq.txt('Davar')
- })
- // insert into person(first_name, last_name) values ((select 'Shallan'), 'Davar')
- ```
+    * ```js
+    * await table.insert.insert({ title: "Forest Gump", rating: 82 }).one()
+    * // > 1
+    * 
+    * await table.insert(
+    *    { title: "Forest Gump", rating: 82 },
+    *    { title: "Joker", rating: 58 },
+    *    { title: "Inception" }
+    * ).one()
+    * // > 3
+    * ```
     */
    insert(...values: Value[]): this
 
    /**
-    * **INSERT clause** - array of values
+    * **INSERT clause** - https://easybase.github.io/EasyQB/docs/insert_queries.html
     * 
-    * Specifies the data to insert as an array of objects.
+    * Specifies the data to insert as objects.
     * 
     * Column names are inferred from object keys.
     * 
-    * Values may be subqueries.
+    * Values may be subqueries
     * 
     * Only the last call to `.insert` is used.
     * 
+    * Executing an Insert query returns a Promise for a number or an array of numbers, for `.one` or `.all`, respectively.
+    * 
     * @example
- ```js
- sq.from('person')
-   .insert([{ name: 'Jo', age: 17 }, { name: 'Mo', age: 18 }])
- // insert into person(name, age) values ('Jo', 17), ('Mo', 18)
- 
- sq.from('person')
-   .insert([{ name: 'Jo', age: 17 }, { id: 23, age: 18 }])
- // insert into person(name, age, id) values ('Jo', 17, default), (default, 18, 23)
- 
- sq.from('person').insert([{
-   firstName: sq.return`${'Shallan'}`,
-   lastName: sq.txt('Davar')
- }])
- // insert into person(first_name, last_name) values ((select 'Shallan'), 'Davar')
- ```
+    * ```js
+    * await table.insert.insert({ title: "Forest Gump", rating: 82 }).one()
+    * // > 1
+    * 
+    * await table.insert(
+    *    { title: "Forest Gump", rating: 82 },
+    *    { title: "Joker", rating: 58 },
+    *    { title: "Inception" }
+    * ).one()
+    * // > 3
+    * ```
     */
    insert(values: Value[]): this
 
    /**
-    * **INSERT clause** - query
+    * **INSERT clause** - https://easybase.github.io/EasyQB/docs/insert_queries.html
     * 
-    * Specifies the data to insert from a query.
+    * Specifies the data to insert as objects.
+    * 
+    * Column names are inferred from object keys.
+    * 
+    * Values may be subqueries
     * 
     * Only the last call to `.insert` is used.
     * 
+    * Executing an Insert query returns a Promise for a number or an array of numbers, for `.one` or `.all`, respectively.
+    * 
     * @example
- ```js
- sq.from('person(name, age)').insert(sq.return(sq.txt('Jo'), 23))
- // insert into person(name, age) select 'Jo', 23
- 
- sq.from('person(name)').insert(sq.txt`values (${'Jo'})`)
- // insert into person(name) values ('Jo')
- ```
+    * ```js
+    * await table.insert.insert({ title: "Forest Gump", rating: 82 }).one()
+    * // > 1
+    * 
+    * await table.insert(
+    *    { title: "Forest Gump", rating: 82 },
+    *    { title: "Joker", rating: 58 },
+    *    { title: "Inception" }
+    * ).one()
+    * // > 3
+    * ```
     */
    insert(query: SQ): this
 }
 
 export interface Set {
    /**
-    * **SET clause** - update values
+    * **SET clause** - https://easybase.github.io/EasyQB/docs/update_queries.html#set
     *
     * Pass `.set` the values to update.
     * 
     * Multiple `.set` calls are joined with ', '.
     * 
     * @example
- ```js
- sq.from('person')
-   .set({ age: sq.txt`age + 1`, done: true })
-   .where({ age: 7 })
-   .return('person.name')
- // update person
- // set age = age + 1, done = true
- // where age = 7
- // returning person.name
- 
- sq.from('person').set(
-   { firstName: 'Robert', nickname: 'Rob' },
-   { processed: true }
- )
- // update person
- // set first_name = 'Robert', nickname = 'Rob', processed = true
- 
- sq.from('person')
-   .set({ firstName: sq.txt`'Bob'` })
-   .set({ lastName: sq.return`'Smith'` })
- // update person
- // set first_name = 'Bob', last_name = (select 'Smith')
- ```
+    *
+    * ```js
+    * await table.set({ title: "Pulp Fiction" }).one()
+    * // > 1
+    * 
+    * await table.set({ title: "Pulp Fiction" }).all()
+    * // > 4
+    * ```
     */
    set(...values: Value[]): this
 }
@@ -1143,19 +1000,14 @@ export interface Set {
 
 export interface Delete {
    /**
-    * DELETE - marks the query as a delete query
+    * DELETE - marks the query as a delete query - https://easybase.github.io/EasyQB/docs/delete_queries.html
     *
     * @example
- ```js
- sq.delete.from`person`
- // delete * from person
- 
- sq.delete.from`person`.where`age < 7`.return`id`
- // delete from person where age < 7 returning id
- 
- sq`person``age < 7``id`.delete
- // delete from person where age < 7 returning id
- ```
+    * await table.delete().one();
+    * // > 1
+    * 
+    * await table.delete().where(e.gt('rating', 55)).all();
+    * // > 3
     */
    readonly delete: this
 }
