@@ -39,13 +39,29 @@ await table.set({ title: "Pulp Fiction" }).all()
 Filter the rows to update with `.where`.
 
 ```js
-await table
-  .where({ firstName: 'Matt' })
-  .set({ firstName: 'Robert', nickname: 'Rob' })
-  .query
+await table.where(
+  e.or(
+    e.eq("title", "The Lion King"), // Equals
+    e.gt("rating", 80) // Greater than
+  )
+).set({ rating: -1 }).all()
+> 2
 
-{ text: 'update person set first_name = $1, nickname = $2 where (first_name = $3)',
-  args: ['Robert', 'Rob', 'Matt'] }
+// [
+//   { "title": "Avatar", "rating": -1 },
+//   { "title": "The Lion King", "rating": -1 }
+// ]
+```
+
+Update specific record with `.where`.
+```js
+// Select returns a unique identifier called _key
+let singleRecord = table.return().where(e.like('title', "Jurassic World")).one()
+
+await table.where({ _key: singleRecord._key }).set({ title: "Pulp Fiction" }).one()
+> 1
+
+// { "title": "Pulp Fiction", "rating": 59 }
 ```
 
 Note that `.where` works in update queries just as it does in [select](select_queries.html#where) queries.

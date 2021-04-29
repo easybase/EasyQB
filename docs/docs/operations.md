@@ -22,19 +22,15 @@ nav_order: 14
 ```js
 e.and(true, false)
 
-{ text: '$1 and $2',
-  args: [true, false] }
+// true and false
 ```
 
-At least one argument is required.
+Useful with other operations.
 
 ```js
-e.and() // throws error
+e.and(e.gt('rating', 50), e.lt('rating', 80))
 
-e.and(true)
-
-{ text: '$1',
-  args: [true] }
+// 'rating' > 50 and 'rating' < 80
 ```
 
 More than two arguments is allowed.
@@ -42,8 +38,7 @@ More than two arguments is allowed.
 ```js
 e.and(true, false, true, false)
 
-{ text: '$1 and $2 and $3 and $4',
-  args: [true, false, true, false] }
+// true and false and true and false
 ```
 
 ### Or
@@ -53,19 +48,15 @@ e.and(true, false, true, false)
 ```js
 e.or(true, false)
 
-{ text: '$1 or $2',
-  args: [true, false] }
+// true or false
 ```
 
-At least one argument is required.
+Useful with other operations.
 
 ```js
-e.or() // throws error
+e.or(e.like('title', 'T%'), e.lt('rating', 80))
 
-e.or(true)
-
-{ text: '$1',
-  args: [true] }
+// 'title' LIKE 'T%' or 'rating' < 80
 ```
 
 More than two arguments is allowed.
@@ -73,8 +64,7 @@ More than two arguments is allowed.
 ```js
 e.or(true, false, true, false)
 
-{ text: '$1 or $2 or $3 or $4',
-  args: [true, false, true, false] }
+// true or false or true or false
 ```
 
 ### Not
@@ -84,8 +74,7 @@ e.or(true, false, true, false)
 ```js
 e.not(true)
 
-{ text: 'not($1)',
-  args: [true] }
+// (!true)
 ```
 
 
@@ -96,10 +85,9 @@ e.not(true)
 `.eq` returns whether its arguments are equal.
 
 ```js
-e.eq('moo', 'moo')
+e.eq('rating', 72)
 
-{ text: '$1 = $2',
-  args: ['moo', 'moo'] }
+// 'rating' == 72
 ```
 
 ### Not Equal
@@ -107,10 +95,9 @@ e.eq('moo', 'moo')
 `.neq` returns whether its arguments are *not* equal.
 
 ```js
-e.neq('moo', 'moo')
+e.neq('rating', 72)
 
-{ text: '$1 <> $2',
-  args: ['moo', 'moo'] }
+// 'rating' != 72
 ```
 
 ### Less Than
@@ -118,10 +105,9 @@ e.neq('moo', 'moo')
 `.lt` returns whether its first argument is less than its second argument.
 
 ```js
-e.lt('moo', 'moo')
+e.lt('rating', 72)
 
-{ text: '$1 < $2',
-  args: ['moo', 'moo'] }
+// 'rating' < 72
 ```
 
 ### Greater Than
@@ -129,10 +115,9 @@ e.lt('moo', 'moo')
 `.gt` returns whether its first argument is greater than its second argument.
 
 ```js
-e.gt('moo', 'moo')
+e.gt('rating', 72)
 
-{ text: '$1 > $2',
-  args: ['moo', 'moo'] }
+// 'rating' > 72
 ```
 
 ### Less Than or Equal
@@ -140,10 +125,9 @@ e.gt('moo', 'moo')
 `.lte` returns whether its first argument is less than or equal to its second argument.
 
 ```js
-e.lte('moo', 'moo')
+e.lte('rating', 72)
 
-{ text: '$1 <= $2',
-  args: ['moo', 'moo'] }
+// 'rating' <= 72
 ```
 
 ### Greater Than or Equal
@@ -151,10 +135,9 @@ e.lte('moo', 'moo')
 `.gte` returns whether its first argument is greater than or equal to its second argument.
 
 ```js
-e.gte('moo', 'moo')
+e.gte('rating', 72)
 
-{ text: '$1 >= $2',
-  args: ['moo', 'moo'] }
+// 'rating' >= 72
 ```
 
 ### Between
@@ -162,21 +145,9 @@ e.gte('moo', 'moo')
 `.between` returns whether its first argument is between its second and third arguments.
 
 ```js
-e.between(5, 3, 9)
+e.between('rating', 50, 75)
 
-{ text: '$1 between $2 and $3',
-  args: [5, 3, 9] }
-```
-
-### Not Between
-
-`.notBetween` returns whether its first argument is *not* between its second and third arguments.
-
-```js
-e.notBetween(5, 3, 9)
-
-{ text: '$1 not between $2 and $3',
-  args: [5, 3, 9] }
+// 'rating' between 50 and 75
 ```
 
 ### Is Null
@@ -190,10 +161,9 @@ false is null | false
 null is null | true
 
 ```js
-e.isNull(null)
+e.isNull('title')
 
-{ text: '$1 is null',
-  args: [null] }
+// 'title' == null
 ```
 
 
@@ -208,10 +178,9 @@ false is not null | true
 null is not null | false
 
 ```js
-e.isNotNull(null)
+e.isNotNull('title')
 
-{ text: '$1 is not null',
-  args: [null] }
+// 'title' != null
 ```
 
 ### In
@@ -219,24 +188,9 @@ e.isNotNull(null)
 `.in` returns whether a value is in a *Values List*.
 
 ```js
-e.in(7, [5, 6, 7])
+e.in('rating', [5, 6, 7])
 
-{ text: '$1 in ($2, $3, $4)',
-  args: [7, 5, 6, 7] }
-```
-
-`.in` is equivalent to [`.eqAny`](#equal-any) when the second argument is a table.
-
-```js
-e.in(4, [3, 4, 5])
-
-{ text: '$1 in ($2, $3, $4)',
-  args: [4, 3, 4, 5] }
-
-e.eqAny(4, [3, 4, 5])
-
-{ text: '$1 = any($2)',
-  args: [4, [3, 4, 5]] }
+// 'rating' in [5, 6, 7]
 ```
 
 ### Not In
@@ -244,24 +198,9 @@ e.eqAny(4, [3, 4, 5])
 `.notIn` returns whether a value is *not* in a *Values List*.
 
 ```js
-e.notIn(7, [5, 6, 7])
+e.notIn('rating', [5, 6, 7])
 
-{ text: '$1 not in ($2, $3, $4)',
-  args: [7, 5, 6, 7] }
-```
-
-`.notIn` is equivalent to [`.neqAll`](#not-equal-all) when the second argument is a table.
-
-```js
-e.notIn(4, [3, 4, 5])
-
-{ text: '$1 not in ($2, $3, $4)',
-  args: [4, 3, 4, 5] }
-
-e.neqAll(4, [3, 4, 5])
-
-{ text: '$1 <> all($2)',
-  args: [4, [3, 4, 5]] }
+// 'rating' not in [5, 6, 7]
 ```
 
 ## String
@@ -305,8 +244,7 @@ await table.return().where(e.notLike('title', 'T%')).all()
 ```js
 e.dateLt('dateCol', '2020-01-20')
 
-{ text: '$1 < $2',
-  args: ['dateCol', '2020-01-20'] }
+// 'dateCol' < '2020-01-20'
 ```
 
 ### Date Greater Than
@@ -316,8 +254,7 @@ e.dateLt('dateCol', '2020-01-20')
 ```js
 e.dateGt('dateCol', new Date())
 
-{ text: '$1 > $2',
-  args: ['dateCol', '2021-04-26'] }
+// 'dateCol' > now()
 ```
 
 ### Date Less Than or Equal
@@ -327,8 +264,7 @@ e.dateGt('dateCol', new Date())
 ```js
 e.dateLte('dateCol', '2020-01-20')
 
-{ text: '$1 <= $2',
-  args: ['dateCol', '2020-01-20'] }
+// 'dateCol' <= '2020-01-20'
 ```
 
 ### Date Greater Than or Equal
@@ -338,8 +274,7 @@ e.dateLte('dateCol', '2020-01-20')
 ```js
 e.dateGte('dateCol', '2020-01-20')
 
-{ text: '$1 >= $2',
-  args: ['dateCol', '2020-01-20'] }
+// 'dateCol' >= '2020-01-20'
 ```
 
 

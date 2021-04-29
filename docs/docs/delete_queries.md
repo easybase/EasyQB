@@ -53,4 +53,13 @@ await table.delete().where(
 // ]
 ```
 
+Delete specific record with `.where`.
+```js
+let singleRecord = table.return().one() // Select returns a unique identifier called _key
+
+await table.delete().where({ _key: singleRecord._key }).one()
+> 1
+```
+
+
 Note that `.where` works in delete queries just it does in [select](select_queries.html#where) queries.

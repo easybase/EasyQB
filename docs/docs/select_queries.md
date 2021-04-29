@@ -65,6 +65,15 @@ await table.return("title").one();
 { "title": "Avatar" }
 ```
 
+**Note** that each record will also have a persistent, unique identifier called `_key`. This is useful for performing operations on specific records.
+
+```js
+await table.return().one();
+
+{ "title": "Avatar", "rating": 83, "_key": "507f191e810d19729de860ea" },
+```
+
+
 ## Where
 
 `.where` builds *where* clauses. Expressions, `e`, are are used to create comparisons and boolean logic. **[Learn more about expressions and operations](operations.html)**.
