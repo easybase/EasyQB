@@ -52,7 +52,6 @@ const comparison = {
     gte: binary('>='),
     // misc
     between: ternary('between', 'and'),
-    notBetween: ternary('not between', 'and'),
     isDistinctFrom: binary('is distinct from'),
     isNotDistinctFrom: binary('is not distinct from'),
     isNull: unaryPost('is null'),

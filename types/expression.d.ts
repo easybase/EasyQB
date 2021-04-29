@@ -268,7 +268,6 @@ interface ComparisonOperations<T extends Types> {
     gte: T extends 'new' ? Gte : GteChain<T>
     // misc
     between: T extends 'new' ? Between : BetweenChain1<T>
-    notBetween: T extends 'new' ? NotBetween : NotBetweenChain1<T>
     isDistinctFrom: T extends 'new' ? IsDistinctFrom : IsDistinctFromChain<T>
     isNotDistinctFrom: T extends 'new' ? IsNotDistinctFrom : IsNotDistinctFromChain<T>
     isNull: T extends 'new' ? IsNull : BooleanExpression
@@ -356,19 +355,6 @@ interface BetweenChain1<T extends Types> {
     (arg2: Compatible<T>, arg3: Compatible<T>): BooleanExpression
 }
 interface BetweenChain2<T extends Types> {
-    (arg3: Compatible<T>): BooleanExpression
-}
-
-interface NotBetween {
-    <T extends Arg>(arg1: T): NotBetweenChain1<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: InferCompatible<T>): NotBetweenChain2<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: InferCompatible<T>, arg3: InferCompatible<T>): BooleanExpression
-}
-interface NotBetweenChain1<T extends Types> {
-    (arg2: Compatible<T>): NotBetweenChain2<T>
-    (arg2: Compatible<T>, arg3: Compatible<T>): BooleanExpression
-}
-interface NotBetweenChain2<T extends Types> {
     (arg3: Compatible<T>): BooleanExpression
 }
 
