@@ -13,7 +13,7 @@ nav_order: 11
 Use `.insert` to specify data to insert into your data table. **This will return the number of records inserted**.
 
 ```js
-await table.insert.insert({ title: "Forest Gump", rating: 82 }).one()
+await table.insert({ title: "Forest Gump", rating: 82 }).one()
 > 1
 
 // { title: "Forest Gump", rating: 82 }
