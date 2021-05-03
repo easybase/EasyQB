@@ -33,6 +33,7 @@ async function main() {
     e.eq('hello', 15),
     e.between('rating', 10, 660)
   )).one()
+  await table1.delete().one()
   // await table1.return().where({ hello: "world"}).one()
   // await table1.return().one()
 }

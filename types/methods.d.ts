@@ -131,8 +131,7 @@ interface ExpressFrom {
  sq('book').where({ id: 8 }).set({ authorId: 7 })
  // update book set author_id = $1 where id = $2
  
- sq.delete('book').where({ id: 7 })
- // delete from book where id = $1
+ sq.delete().where({ id: 7 })
  
  sq('book').insert({ title: 'Moby Dick', authorId: 8 })
  // insert into book (title, author_id) values ($1, $2)
@@ -1008,6 +1007,9 @@ export interface Delete {
     * 
     * await table.delete().where(e.gt('rating', 55)).all();
     * // > 3
+    * 
+    * await table.delete().where({ _key: res[0]._key }).one();
+    * // > 1
     */
    readonly delete: this
 }
