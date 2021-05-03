@@ -157,7 +157,7 @@ const methods = {
         }
     },
     delete: {
-        getter: true,
+        // getter: true,
         updateContext: ctx => {
             ctx.type = 'delete'
         }

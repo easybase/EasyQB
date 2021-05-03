@@ -26,10 +26,13 @@ async function main() {
   const e = table1.e;
   // await table1.return().where(e.dateGte('dateCol', new Date())).all()
   await table1.return().where({ hello: "word", _key: 123 }).all()
-  await table1.delete().where(e.or(e.gte('rating', 20), e.in('helklo', [1, 2, 3]), e.eq('_key', "asdfasdfds"))).one()
+  await table1.delete().where({ _key: "wer" }).one()
   await table1.return().where(e.between('rating', 10, 660)).all()
 
-  // await table1.delete().where(e.eq('hello', 'world')).one()
+  await table1.delete().where(e.or(
+    e.eq('hello', 15),
+    e.between('rating', 10, 660)
+  )).one()
   // await table1.return().where({ hello: "world"}).one()
   // await table1.return().one()
 }
