@@ -25,6 +25,11 @@ const createQueryBuilder = ({ defaultContext, query, e, config }) => {
                 const ret = await config.allCallback(this.query, config.tableName, config.userAssociatedRecordsOnly)
                 return ret;
             }
+        },
+        _tableName: {
+            get: function () {
+                return config.tableName
+            }
         }
     }
 

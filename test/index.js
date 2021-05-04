@@ -34,6 +34,8 @@ async function main() {
     e.between('rating', 10, 660)
   )).one()
   await table1.delete().one()
+  console.log(table1._tableName);
+  console.log(easyqb("Hello Mile")._tableName);
   // await table1.return().where({ hello: "world"}).one()
   // await table1.return().one()
 }
