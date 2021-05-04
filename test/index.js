@@ -24,18 +24,17 @@ async function main() {
   const table1 = easyqb();
   table1.delete()
   const e = table1.e;
+  console.log(easyqb().e.or(e.eq('app_name', 'asdf'), e.between('rating', 10, 660)).query)
   // await table1.return().where(e.dateGte('dateCol', new Date())).all()
   await table1.return().where({ hello: "word", _key: 123 }).all()
-  await table1.delete().where({ _key: "wer" }).one()
-  await table1.return().where(e.between('rating', 10, 660)).all()
-
-  await table1.delete().where(e.or(
-    e.eq('hello', 15),
-    e.between('rating', 10, 660)
-  )).one()
-  await table1.delete().one()
-  console.log(table1._tableName);
-  console.log(easyqb("Hello Mile")._tableName);
+  // await table1.delete().where({ _key: "wer" }).one()
+  // await table1.return().where(e.between('rating', 10, 660)).all()
+  e.gtAll('rating', [1, 2, 3])
+  // await table1.delete().where(e.or(
+  //   e.eq('hello', 15),
+  //   e.between('rating', 10, 660)
+  // )).one()
+  // await table1.delete().one()
   // await table1.return().where({ hello: "world"}).one()
   // await table1.return().one()
 }

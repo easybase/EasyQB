@@ -291,15 +291,33 @@ interface ComparisonOperations<T extends Types> {
     // date comparison
     // dateEq: T extends 'new' ? Eq : EqChain<T>
     // dateNeq: T extends 'new' ? Neq : NeqChain<T>
-    dateLt: T extends 'new' ? Lt : LtChain<T>
-    dateGt: T extends 'new' ? Gt : GtChain<T>
-    dateLte: T extends 'new' ? Lte : LteChain<T>
-    dateGte: T extends 'new' ? Gte : GteChain<T>
+    dateLt: T extends 'new' ? DateLt : LtChain<T>
+    dateGt: T extends 'new' ? DateGt : GtChain<T>
+    dateLte: T extends 'new' ? DateLte : LteChain<T>
+    dateGte: T extends 'new' ? DateGte : GteChain<T>
 }
+
+interface DateLt {
+    <T extends Arg>(arg1: T): LtChain<Infer<T>>
+    <T extends Arg>(arg1: T, arg2: Date | string | InferCompatible<T>): BooleanExpression
+}
+interface DateGt {
+    <T extends Arg>(arg1: T): GtChain<Infer<T>>
+    <T extends Arg>(arg1: T, arg2: Date | string | InferCompatible<T>): BooleanExpression
+}
+interface DateLte {
+    <T extends Arg>(arg1: T): LteChain<Infer<T>>
+    <T extends Arg>(arg1: T, arg2: Date | string | InferCompatible<T>): BooleanExpression
+}
+interface DateGte {
+    <T extends Arg>(arg1: T): GteChain<Infer<T>>
+    <T extends Arg>(arg1: T, arg2: Date | string | InferCompatible<T>): BooleanExpression
+}
+
 
 interface Eq {
     <T extends Arg>(arg1: T): EqChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: InferCompatible<T>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number | string | InferCompatible<T>): BooleanExpression
 }
 interface EqChain<T extends Types> {
     (arg2: Compatible<T>): BooleanExpression
@@ -307,7 +325,7 @@ interface EqChain<T extends Types> {
 
 interface Neq {
     <T extends Arg>(arg1: T): NeqChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: InferCompatible<T>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number | string | InferCompatible<T>): BooleanExpression
 }
 interface NeqChain<T extends Types> {
     (arg2: Compatible<T>): BooleanExpression
@@ -315,7 +333,7 @@ interface NeqChain<T extends Types> {
 
 interface Lt {
     <T extends Arg>(arg1: T): LtChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: InferCompatible<T>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number | string | InferCompatible<T>): BooleanExpression
 }
 interface LtChain<T extends Types> {
     (arg2: Compatible<T>): BooleanExpression
@@ -323,7 +341,7 @@ interface LtChain<T extends Types> {
 
 interface Gt {
     <T extends Arg>(arg1: T): GtChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: InferCompatible<T>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number | string | InferCompatible<T>): BooleanExpression
 }
 interface GtChain<T extends Types> {
     (arg2: Compatible<T>): BooleanExpression
@@ -331,7 +349,7 @@ interface GtChain<T extends Types> {
 
 interface Lte {
     <T extends Arg>(arg1: T): LteChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: InferCompatible<T>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number | string | InferCompatible<T>): BooleanExpression
 }
 interface LteChain<T extends Types> {
     (arg2: Compatible<T>): BooleanExpression
@@ -339,7 +357,7 @@ interface LteChain<T extends Types> {
 
 interface Gte {
     <T extends Arg>(arg1: T): GteChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: InferCompatible<T>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number | string | InferCompatible<T>): BooleanExpression
 }
 interface GteChain<T extends Types> {
     (arg2: Compatible<T>): BooleanExpression
@@ -348,11 +366,11 @@ interface GteChain<T extends Types> {
 interface Between {
     <T extends Arg>(arg1: T): BetweenChain1<Infer<T>>
     <T extends Arg>(arg1: T, arg2: InferCompatible<T>): BetweenChain2<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: InferCompatible<T>, arg3: InferCompatible<T>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number | string | InferCompatible<T>, arg3: number | string | InferCompatible<T>): BooleanExpression
 }
 interface BetweenChain1<T extends Types> {
     (arg2: Compatible<T>): BetweenChain2<T>
-    (arg2: Compatible<T>, arg3: Compatible<T>): BooleanExpression
+    (arg2: Compatible<T>, arg3: number | string | Compatible<T>): BooleanExpression
 }
 interface BetweenChain2<T extends Types> {
     (arg3: Compatible<T>): BooleanExpression
@@ -383,7 +401,7 @@ interface IsNotNull {
 
 interface EqAny {
     <T extends Arg>(arg1: T): EqAnyChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: CompatibleArray<Infer<T>>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number[] | string[] | CompatibleArray<Infer<T>>): BooleanExpression
     <T extends Arg>(arg1: T, arg2: TableArgument): BooleanExpression
 }
 interface EqAnyChain<T extends Types> {
@@ -393,7 +411,7 @@ interface EqAnyChain<T extends Types> {
 
 interface NeqAny {
     <T extends Arg>(arg1: T): NeqAnyChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: CompatibleArray<Infer<T>>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number[] | string[] | CompatibleArray<Infer<T>>): BooleanExpression
     <T extends Arg>(arg1: T, arg2: TableArgument): BooleanExpression
 }
 interface NeqAnyChain<T extends Types> {
@@ -403,7 +421,7 @@ interface NeqAnyChain<T extends Types> {
 
 interface LtAny {
     <T extends Arg>(arg1: T): LtAnyChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: CompatibleArray<Infer<T>>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number[] | string[] | CompatibleArray<Infer<T>>): BooleanExpression
     <T extends Arg>(arg1: T, arg2: TableArgument): BooleanExpression
 }
 interface LtAnyChain<T extends Types> {
@@ -413,7 +431,7 @@ interface LtAnyChain<T extends Types> {
 
 interface GtAny {
     <T extends Arg>(arg1: T): GtAnyChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: CompatibleArray<Infer<T>>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number[] | string[] | CompatibleArray<Infer<T>>): BooleanExpression
     <T extends Arg>(arg1: T, arg2: TableArgument): BooleanExpression
 }
 interface GtAnyChain<T extends Types> {
@@ -423,7 +441,7 @@ interface GtAnyChain<T extends Types> {
 
 interface LteAny {
     <T extends Arg>(arg1: T): LteAnyChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: CompatibleArray<Infer<T>>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number[] | string[] | CompatibleArray<Infer<T>>): BooleanExpression
     <T extends Arg>(arg1: T, arg2: TableArgument): BooleanExpression
 }
 interface LteAnyChain<T extends Types> {
@@ -433,7 +451,7 @@ interface LteAnyChain<T extends Types> {
 
 interface GteAny {
     <T extends Arg>(arg1: T): GteAnyChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: CompatibleArray<Infer<T>>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number[] | string[] | CompatibleArray<Infer<T>>): BooleanExpression
     <T extends Arg>(arg1: T, arg2: TableArgument): BooleanExpression
 }
 interface GteAnyChain<T extends Types> {
@@ -443,7 +461,7 @@ interface GteAnyChain<T extends Types> {
 
 interface EqSome {
     <T extends Arg>(arg1: T): EqSomeChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: CompatibleArray<Infer<T>>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number[] | string[] | CompatibleArray<Infer<T>>): BooleanExpression
     <T extends Arg>(arg1: T, arg2: TableArgument): BooleanExpression
 }
 interface EqSomeChain<T extends Types> {
@@ -453,7 +471,7 @@ interface EqSomeChain<T extends Types> {
 
 interface NeqSome {
     <T extends Arg>(arg1: T): NeqSomeChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: CompatibleArray<Infer<T>>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number[] | string[] | CompatibleArray<Infer<T>>): BooleanExpression
     <T extends Arg>(arg1: T, arg2: TableArgument): BooleanExpression
 }
 interface NeqSomeChain<T extends Types> {
@@ -463,7 +481,7 @@ interface NeqSomeChain<T extends Types> {
 
 interface LtSome {
     <T extends Arg>(arg1: T): LtSomeChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: CompatibleArray<Infer<T>>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number[] | string[] | CompatibleArray<Infer<T>>): BooleanExpression
     <T extends Arg>(arg1: T, arg2: TableArgument): BooleanExpression
 }
 interface LtSomeChain<T extends Types> {
@@ -473,7 +491,7 @@ interface LtSomeChain<T extends Types> {
 
 interface GtSome {
     <T extends Arg>(arg1: T): GtSomeChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: CompatibleArray<Infer<T>>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number[] | string[] | CompatibleArray<Infer<T>>): BooleanExpression
     <T extends Arg>(arg1: T, arg2: TableArgument): BooleanExpression
 }
 interface GtSomeChain<T extends Types> {
@@ -483,7 +501,7 @@ interface GtSomeChain<T extends Types> {
 
 interface LteSome {
     <T extends Arg>(arg1: T): LteSomeChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: CompatibleArray<Infer<T>>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number[] | string[] | CompatibleArray<Infer<T>>): BooleanExpression
     <T extends Arg>(arg1: T, arg2: TableArgument): BooleanExpression
 }
 interface LteSomeChain<T extends Types> {
@@ -493,7 +511,7 @@ interface LteSomeChain<T extends Types> {
 
 interface GteSome {
     <T extends Arg>(arg1: T): GteSomeChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: CompatibleArray<Infer<T>>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number[] | string[] | CompatibleArray<Infer<T>>): BooleanExpression
     <T extends Arg>(arg1: T, arg2: TableArgument): BooleanExpression
 }
 interface GteSomeChain<T extends Types> {
@@ -503,7 +521,7 @@ interface GteSomeChain<T extends Types> {
 
 interface EqAll {
     <T extends Arg>(arg1: T): EqAllChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: CompatibleArray<Infer<T>>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number[] | string[] | CompatibleArray<Infer<T>>): BooleanExpression
     <T extends Arg>(arg1: T, arg2: TableArgument): BooleanExpression
 }
 interface EqAllChain<T extends Types> {
@@ -513,7 +531,7 @@ interface EqAllChain<T extends Types> {
 
 interface NeqAll {
     <T extends Arg>(arg1: T): NeqAllChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: CompatibleArray<Infer<T>>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number[] | string[] | CompatibleArray<Infer<T>>): BooleanExpression
     <T extends Arg>(arg1: T, arg2: TableArgument): BooleanExpression
 }
 interface NeqAllChain<T extends Types> {
@@ -523,7 +541,7 @@ interface NeqAllChain<T extends Types> {
 
 interface LtAll {
     <T extends Arg>(arg1: T): LtAllChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: CompatibleArray<Infer<T>>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number[] | string[] | CompatibleArray<Infer<T>>): BooleanExpression
     <T extends Arg>(arg1: T, arg2: TableArgument): BooleanExpression
 }
 interface LtAllChain<T extends Types> {
@@ -533,7 +551,7 @@ interface LtAllChain<T extends Types> {
 
 interface GtAll {
     <T extends Arg>(arg1: T): GtAllChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: CompatibleArray<Infer<T>>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number[] | string[] | CompatibleArray<Infer<T>>): BooleanExpression
     <T extends Arg>(arg1: T, arg2: TableArgument): BooleanExpression
 }
 interface GtAllChain<T extends Types> {
@@ -543,7 +561,7 @@ interface GtAllChain<T extends Types> {
 
 interface LteAll {
     <T extends Arg>(arg1: T): LteAllChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: CompatibleArray<Infer<T>>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number[] | string[] | CompatibleArray<Infer<T>>): BooleanExpression
     <T extends Arg>(arg1: T, arg2: TableArgument): BooleanExpression
 }
 interface LteAllChain<T extends Types> {
@@ -553,7 +571,7 @@ interface LteAllChain<T extends Types> {
 
 interface GteAll {
     <T extends Arg>(arg1: T): GteAllChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: CompatibleArray<Infer<T>>): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number[] | string[] | CompatibleArray<Infer<T>>): BooleanExpression
     <T extends Arg>(arg1: T, arg2: TableArgument): BooleanExpression
 }
 interface GteAllChain<T extends Types> {
@@ -563,7 +581,7 @@ interface GteAllChain<T extends Types> {
 
 interface In {
     <T extends Arg>(arg1: T): InChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: InferCompatible<T>[]): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number[] | string[] | InferCompatible<T>[]): BooleanExpression
     <T extends Arg>(arg1: T, arg2: TableArgument): BooleanExpression
 }
 interface InChain<T extends Types> {
@@ -573,7 +591,7 @@ interface InChain<T extends Types> {
 
 interface NotIn {
     <T extends Arg>(arg1: T): NotInChain<Infer<T>>
-    <T extends Arg>(arg1: T, arg2: InferCompatible<T>[]): BooleanExpression
+    <T extends Arg>(arg1: T, arg2: number[] | string[] | InferCompatible<T>[]): BooleanExpression
     <T extends Arg>(arg1: T, arg2: TableArgument): BooleanExpression
 }
 interface NotInChain<T extends Types> {
