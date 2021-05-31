@@ -1,7 +1,7 @@
 {
   "name": "easyqb",
   "version": "1.0.19",
-  "description": "Query builder for Easybase",
+  "description": "Query builder for Easybase. Used in easybasejs and easybase-react",
   "main": "src/index.js",
   "scripts": {
     "test": "node test/index.js"
