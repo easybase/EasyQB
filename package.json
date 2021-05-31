@@ -1,5 +1,5 @@
 {
-  "name": "EasyQB",
+  "name": "easyqb",
   "version": "1.0.19",
   "description": "Query builder for Easybase",
   "main": "src/index.js",
