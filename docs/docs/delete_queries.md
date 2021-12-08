@@ -2,6 +2,7 @@
 id: delete-queries
 title: Delete
 nav_order: 12
+redirect_to: 'https://docs.easybase.io/projects/database/delete'
 ---
 
 ## Overview

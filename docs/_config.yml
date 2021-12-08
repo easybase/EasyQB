@@ -52,6 +52,9 @@ baseurl: /EasyQB
 #   - vendor/gems/
 #   - vendor/ruby/
 
+plugins:
+  - jekyll-redirect-from
+
 aux_links:
   "Easybase with React":
     - "//easybase.io/react/"

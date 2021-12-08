@@ -2,6 +2,7 @@
 id: update-queries
 title: Update
 nav_order: 13
+redirect_to: 'https://docs.easybase.io/projects/database/update'
 ---
 
 ## Overview

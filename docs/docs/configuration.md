@@ -2,6 +2,7 @@
 id: configuration
 title: Configuration
 nav_order: 15
+redirect_to: 'https://docs.easybase.io/projects/database/select-hook'
 ---
 
 ## Configuration

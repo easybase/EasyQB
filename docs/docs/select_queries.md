@@ -2,6 +2,7 @@
 id: select-queries
 title: Select
 nav_order: 10
+redirect_to: 'https://docs.easybase.io/projects/database/select'
 ---
 
 ## Overview

@@ -2,6 +2,7 @@
 id: insert-queries
 title: Insert
 nav_order: 11
+redirect_to: 'https://docs.easybase.io/projects/database/insert'
 ---
 
 ## Overview

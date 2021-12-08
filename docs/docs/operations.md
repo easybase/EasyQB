@@ -2,6 +2,7 @@
 id: operations
 title: Operations
 nav_order: 14
+redirect_to: 'https://docs.easybase.io/projects/database/operations'
 ---
 
 ## Overview

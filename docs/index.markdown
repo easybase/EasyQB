@@ -5,6 +5,7 @@
 layout: home
 title: About
 nav_order: 9
+redirect_to: 'https://docs.easybase.io/projects/database/introduction'
 ---
 
 ## EasyQB — Query Builder for Easybase
